@@ -78,10 +78,12 @@ body{
 .jelly-blob:active{transform:scale(1.12,.78);transition:transform .06s ease-out}
 
 /* ========== 美化层：视图 ========== */
-.view{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg)}
+/* --safe-top / --safe-bottom：全局顶部/底部安全留白（外观 APP 里"顶栏/底栏调节"），
+   用来适配不同浏览器自身的顶栏/底部手势条，避免视线与图标被遮蔽。作用于每个页面最外层。 */
+.view{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);padding-top:var(--safe-top,0);padding-bottom:var(--safe-bottom,0)}
 .view.active{display:flex}
 .scroll{flex:1;overflow-y:auto;padding:14px 16px}
-.hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(243,250,248,.96);border-bottom:1px solid var(--line);flex-shrink:0;min-height:var(--header-h);box-sizing:border-box}
+.hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(243,250,248,.96);border-bottom:1px solid var(--line);flex-shrink:0;min-height:44px;box-sizing:border-box}
 .hdr h1{flex:1;font-size:17px;font-weight:600;text-align:center}
 .hdr h2{flex:1;font-size:17px;font-weight:600;text-align:left;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hbtn{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--paper);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px -4px var(--shadow);flex-shrink:0;color:var(--ink)}
@@ -122,7 +124,7 @@ body{
 /* ========== 美化层：Tab 栏 ========== */
 .tab-panel{display:none;flex:1;min-height:0;flex-direction:column}
 .tab-panel.active{display:flex}
-.tabbar{display:flex;height:var(--tabbar-h);min-height:48px;background:var(--paper);border-top:1px solid var(--line);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
+.tabbar{display:flex;height:52px;background:var(--paper);border-top:1px solid var(--line);flex-shrink:0;padding-bottom:env(safe-area-inset-bottom)}
 .tab-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-soft);font-size:10.5px;cursor:pointer;position:relative;transition:color .2s}
 .tab-item.on{color:var(--main-deep)}
 .tab-item .ti-badge{position:absolute;top:4px;right:calc(50% - 18px);min-width:14px;height:14px;background:var(--danger);color:#fff;font-size:9px;border-radius:7px;display:flex;align-items:center;justify-content:center;padding:0 3px}
@@ -1104,6 +1106,115 @@ body{
 .gal-prompt-input:focus{border-color:var(--main-deep)}
 .gen-test-result{margin-top:12px}
 .gen-test-result .gen-img-wrap{margin:0}
+/* ========== 语音/视频通话 ========== */
+.call-sel-card{text-align:center}
+.call-sel-sec{padding:6px 2px 4px}
+.call-sel-head{display:flex;align-items:center;gap:12px;text-align:left;padding:4px 6px 10px}
+.call-sel-icon{width:42px;height:42px;border-radius:14px;background:linear-gradient(160deg,#23b77a,#159b62);display:flex;align-items:center;justify-content:center;font-size:21px;box-shadow:0 6px 14px -7px rgba(23,155,98,.7)}
+.call-sel-title{font-size:16px;font-weight:700;color:var(--ink)}
+.call-sel-sub{font-size:12px;color:var(--ink-soft);margin-top:2px}
+.call-sel-row{display:flex;flex-direction:column;gap:12px;align-items:center}
+.call-start{width:100%}
+.call-allow{display:flex;align-items:center;justify-content:space-between;width:100%;font-size:13px;color:var(--ink-soft);padding:0 2px}
+.call-sel-divider{height:1px;background:var(--line);margin:14px -4px}
+/* 通话覆盖层 */
+.call-overlay{position:absolute;inset:0;z-index:90;background:radial-gradient(120% 90% at 50% -10%,#262633,#14141a 60%,#0b0b0f 100%);display:flex;flex-direction:column;align-items:center;color:#fff;overflow:hidden}
+.call-overlay[hidden]{display:none}
+.call-head{display:flex;flex-direction:column;align-items:center;padding:26px 16px 10px;width:100%;flex-shrink:0}
+.call-avatar{position:relative;width:110px;height:110px;display:flex;align-items:center;justify-content:center}
+.call-avatar .ripple{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(124,238,181,.5);animation:ripple 2.8s ease-out infinite}
+.call-avatar .ripple.r1{animation-delay:0s}
+.call-avatar .ripple.r2{animation-delay:.9s}
+.call-avatar .ripple.r3{animation-delay:1.8s}
+@keyframes ripple{0%{transform:scale(.82);opacity:.9}70%{transform:scale(1.55);opacity:0}100%{opacity:0}}
+.call-avatar-face{width:96px;height:96px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:38px;font-weight:700;background:var(--field-bg);border:2px solid rgba(255,255,255,.15);box-shadow:0 0 0 6px rgba(255,255,255,.04),0 12px 30px -8px rgba(0,0,0,.7)}
+.call-avatar-face img{width:100%;height:100%;object-fit:cover}
+.call-name{font-size:20px;font-weight:800;margin-top:14px;color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.4)}
+.call-status{display:flex;align-items:center;gap:6px;font-size:12.5px;color:rgba(255,255,255,.72);margin-top:6px;letter-spacing:.3px}
+.call-status .dot{width:8px;height:8px;border-radius:50%;background:#2ce39b;box-shadow:0 0 8px #2ce39b;animation:blink 1.4s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+.call-cam-toggle{display:flex;align-items:center;gap:10px;margin-top:14px;border:1px solid rgba(255,255,255,.14);border-radius:20px;padding:6px 14px;background:rgba(255,255,255,.06)}
+.cam-label{font-size:12.5px;color:rgba(255,255,255,.85);display:flex;align-items:center;gap:6px}
+.call-cam-toggle .toggle{background:rgba(255,255,255,.22)}
+.call-cam-toggle .toggle.on{background:#07c160}
+.call-msgs{flex:1;width:100%;overflow-y:auto;padding:8px 16px;display:flex;flex-direction:column;gap:10px}
+.cal-msg{max-width:76%;width:fit-content;min-width:0;display:flex;flex-direction:column;gap:3px;animation:msgIn .3s cubic-bezier(.34,1.9,.4,1)}
+.cal-msg.ai{align-self:flex-start} .cal-msg.user{align-self:flex-end}
+.cal-bubble{padding:10px 14px;border-radius:16px;font-size:14.5px;line-height:1.55;white-space:pre-wrap;word-break:break-word;box-shadow:0 6px 16px -10px rgba(0,0,0,.6)}
+.cal-msg.ai .cal-bubble{background:linear-gradient(180deg,#2c2c37,#24242e);border:1px solid rgba(255,255,255,.07)}
+.cal-msg.user .cal-bubble{background:#95ec69;color:#1a1a1a;border-bottom-right-radius:5px}
+.cal-msg.ai .cal-bubble{border-top-left-radius:5px}
+.cal-bubble .bar{display:inline-flex;align-items:flex-end;gap:3px;height:12px;margin-right:7px;vertical-align:middle}
+.cal-bubble .bar span{width:3.5px;border-radius:2px;background:#2ce39b;height:4px}
+.cal-bubble .bar.p1 span:nth-child(1){height:10px}.cal-bubble .bar.p1 span:nth-child(2){height:5px}.cal-bubble .bar.p1 span:nth-child(3){height:8px}
+.cal-bubble .bar.p2 span:nth-child(1){height:6px}.cal-bubble .bar.p2 span:nth-child(2){height:11px}.cal-bubble .bar.p2 span:nth-child(3){height:4px}
+.cal-bubble .bar.p3 span:nth-child(1){height:9px}.cal-bubble .bar.p3 span:nth-child(2){height:4px}.cal-bubble .bar.p3 span:nth-child(3){height:10px}
+.cal-msg.ai .cal-narr{font-size:11px;color:rgba(255,255,255,.5);padding-left:4px;font-style:italic;line-height:1.4}
+.cal-cam-badge{font-size:10px;color:rgba(255,255,255,.55);padding-left:4px}
+.call-input{width:100%;flex-shrink:0;padding:8px 16px 12px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.call-input-row{display:flex;align-items:flex-end;gap:9px;width:100%}
+.call-capsule{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:22px;padding:9px 14px;display:flex;align-items:center}
+.call-capsule textarea{background:transparent;border:none;outline:none;color:#fff;font-size:14px;resize:none;width:100%;max-height:80px;font-family:inherit;line-height:1.4}
+.call-capsule textarea::placeholder{color:rgba(255,255,255,.35)}
+.call-send{width:42px;height:42px;border-radius:50%;background:#07c160;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 6px 16px -6px rgba(7,193,96,.8)}
+.call-hint{font-size:11.5px;color:rgba(255,255,255,.42)}
+.call-ctrl{width:100%;flex-shrink:0;display:flex;justify-content:center;padding:10px 16px calc(16px + env(safe-area-inset-bottom))}
+.call-hang{width:60px;height:60px;border-radius:50%;background:#ff3b30;color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 8px rgba(255,59,48,.18),0 10px 24px -8px rgba(255,59,48,.7)}
+.call-menu{position:absolute;z-index:120;min-width:132px;background:#1d1d26;border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:6px;display:none;box-shadow:0 14px 34px -8px rgba(0,0,0,.7);color:#fff}
+.call-menu .item{display:flex;align-items:center;gap:8px;padding:9px 11px;border-radius:8px;font-size:13px;cursor:pointer}
+.call-menu .item:hover{background:rgba(255,255,255,.08)}
+.call-menu .item.danger{color:#ff6b61}
+/* 通话结束折叠卡片（进入聊天流） */
+.call-card{background:linear-gradient(180deg,var(--paper),var(--field-bg));border:1px solid var(--line);border-radius:18px;overflow:hidden;width:230px;box-shadow:0 8px 20px -10px var(--shadow)}
+.call-card-head{display:flex;align-items:center;gap:10px;padding:11px 13px;cursor:pointer}
+.cc-ava{width:36px;height:36px;border-radius:50%;overflow:hidden;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;background:var(--field-bg);flex-shrink:0}
+.cc-ava img{width:100%;height:100%;object-fit:cover}
+.cc-info{flex:1;min-width:0}
+.cc-title{font-size:13.5px;font-weight:700;color:var(--ink)}
+.cc-meta{font-size:11px;color:var(--ink-soft);margin-top:1px}
+.cc-arrow{font-size:11px;color:var(--ink-soft);flex-shrink:0;transition:transform .25s ease}
+.call-card.open .cc-arrow{transform:rotate(90deg)}
+.call-card-body{display:none;border-top:1px dashed var(--line);padding:9px 10px;flex-direction:column;gap:7px;max-height:340px;overflow-y:auto;background:rgba(0,0,0,.02)}
+.call-card.open .call-card-body{display:flex}
+.call-card-foot{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;border:none;border-top:1px solid var(--line);background:var(--field-bg);color:var(--ink-soft);font-size:12px;padding:9px;cursor:pointer}
+.call-card-foot:active{background:rgba(0,0,0,.05)}
+.call-card-foot .cf-arrow{font-size:11px;transition:transform .25s ease}
+.call-card.open .call-card-foot .cf-arrow{transform:rotate(180deg)}
+.cc-inner{max-width:88%;padding:7px 10px;border-radius:12px;font-size:13px;line-height:1.5;white-space:pre-wrap;word-break:break-word}
+.cc-inner.user{background:var(--bubble-me,#95ec69);color:var(--ink);align-self:flex-end;border-bottom-right-radius:4px}
+.cc-inner.ai{background:var(--paper);border:1px solid var(--line);color:var(--ink);align-self:flex-start;border-top-left-radius:4px}
+.cc-inner .narr{font-size:10.5px;color:var(--ink-soft);font-style:italic;display:block}
+.cc-inner .bars{display:inline-flex;gap:2px;align-items:flex-end;height:10px;margin-right:5px;vertical-align:middle}
+.cc-inner .bars span{width:3px;border-radius:2px;background:#2ce39b;height:5px}
+/* 通话邀请卡片 */
+.call-invite{width:230px;border:1px solid var(--line);border-radius:16px;overflow:hidden;background:linear-gradient(180deg,var(--paper),var(--field-bg));box-shadow:0 8px 20px -10px var(--shadow)}
+.call-invite .ci-head{display:flex;align-items:center;gap:10px;padding:12px 13px}
+.call-invite .ci-ic{font-size:26px}
+.call-invite .ci-txt{font-size:13.5px;line-height:1.45;color:var(--ink)}
+.call-invite .ci-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px}
+.call-invite .ci-actions{display:flex;border-top:1px dashed var(--line)}
+.call-invite .ci-btn{flex:1;padding:10px;font-size:13px;font-weight:600;cursor:pointer;border:none;color:#fff}
+.call-invite .ci-yes{background:#07c160}
+.call-invite .ci-no{background:rgba(0,0,0,.05);color:var(--ink-soft);border-left:1px solid var(--line)}
+.call-reject-card{display:inline-flex;align-items:center;gap:8px;background:rgba(255,69,58,.08);border:1px dashed rgba(255,69,58,.45);border-radius:14px;padding:9px 13px;font-size:13px;color:var(--ink)}
+.call-reject-card .crc-ic{font-size:16px}
+/* ========== 定位卡片 ========== */
+.loc-req-row{text-align:center;margin-top:12px}
+.loc-card{width:206px;border-radius:15px;overflow:hidden;box-shadow:0 8px 20px -12px var(--shadow);border:1px solid var(--line)}
+.loc-map{height:106px;background:linear-gradient(150deg,#9fd6ff,#c9ead8 55%,#a4e0c0);position:relative;overflow:hidden}
+.loc-map::before{content:"";position:absolute;left:-40px;top:30px;width:200%;height:22px;background:rgba(255,255,255,.4);transform:rotate(-6deg)}
+.loc-map::after{content:"";position:absolute;left:-20px;top:70px;width:120%;height:15px;background:rgba(255,255,255,.32);transform:rotate(8deg)}
+.loc-pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);text-align:center}
+.loc-pin .pin-dot{width:16px;height:16px;border-radius:50% 50% 50% 0;background:#ff4757;transform:rotate(-45deg);box-shadow:0 4px 10px -2px rgba(255,71,87,.7);margin:0 auto;position:relative}
+.loc-pin .pin-ring{width:40px;height:40px;border-radius:50%;border:2px dashed rgba(255,71,87,.45);animation:ripple 2.4s ease-out infinite;position:absolute;left:50%;top:50%;transform:translate(-50%,-50%)}
+.loc-body{background:linear-gradient(180deg,var(--paper),var(--field-bg));padding:9px 11px}
+.loc-name{font-size:13.5px;font-weight:700;color:var(--ink)}
+.loc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.loc-tag{font-size:10.5px;background:var(--field-bg);border:1px solid var(--line);border-radius:7px;padding:2px 7px;color:var(--ink-soft);display:flex;align-items:center;gap:4px}
+.loc-tag b{color:var(--ink)}
+/* 通话发起：定位请求卡 */
+.loc-req-card{background:rgba(7,193,96,.08);border:1px dashed rgba(7,193,96,.45);border-radius:14px;padding:9px 12px;font-size:13px;color:var(--ink);display:flex;align-items:center;gap:8px}
+.loc-req-card .lr-action{margin-left:auto;background:#07c160;color:#fff;border-radius:8px;padding:4px 10px;font-size:12px;cursor:pointer;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -1310,6 +1421,8 @@ body{
     <div class="pop-wrap">
       <button class="hbtn jelly-btn" title="更多功能" onclick="toggleChatMore()"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg></button>
       <div class="popover more-pop" id="chatMore">
+        <div class="item" onclick="openCallModal()"><span class="mi">📞</span>通话</div>
+        <div class="item" onclick="openLocModal()"><span class="mi">📍</span>定位</div>
         <div class="item" onclick="openVoiceModal()"><span class="mi">🎤</span>语音</div>
         <div class="item" onclick="openTextImgModal()"><span class="mi">📝</span>文字图</div>
         <div class="item" onclick="openCameraModal()"><span class="mi">📷</span>相机</div>
@@ -1387,6 +1500,77 @@ body{
     <div class="modal-head"><h3>发送语音</h3><button class="close-btn" onclick="document.getElementById('voiceModal').classList.remove('open')">✕</button></div>
     <div class="field"><label>语音内容（直接输入文字模拟语音，点开可查看）</label><textarea id="vmContent" rows="3" placeholder="喂喂喂，在吗？"></textarea></div>
     <button class="primary-btn jelly-btn" onclick="sendVoice()">发送</button>
+  </div>
+</div>
+
+<!-- 通话发起弹窗：上半部分语音通话，下半部分视频通话，可分别设置 ta 是否可主动发起 -->
+<div class="modal-mask" id="callModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-card call-sel-card">
+    <div class="modal-head"><h3>语音 / 视频通话</h3><button class="close-btn" onclick="document.getElementById('callModal').classList.remove('open')">✕</button></div>
+    <div class="call-sel-sec">
+      <div class="call-sel-head"><span class="call-sel-icon">🎙️</span><div><div class="call-sel-title">语音通话</div><div class="call-sel-sub">文字模拟 · 实时通话感觉</div></div></div>
+      <div class="call-sel-row">
+        <button class="primary-btn jelly-btn call-start" onclick="startCall('voice')">开始语音通话</button>
+        <div class="call-allow"><span>允许 ta 主动发起</span><div class="toggle" id="callAllowVoice" onclick="toggleCallAllow('voice')"><div class="knob"></div></div></div>
+      </div>
+    </div>
+    <div class="call-sel-divider"></div>
+    <div class="call-sel-sec">
+      <div class="call-sel-head"><span class="call-sel-icon">📹</span><div><div class="call-sel-title">视频通话</div><div class="call-sel-sub">可见画面 · 支持摄像头开关</div></div></div>
+      <div class="call-sel-row">
+        <button class="primary-btn jelly-btn call-start" onclick="startCall('video')">开始视频通话</button>
+        <div class="call-allow"><span>允许 ta 主动发起</span><div class="toggle" id="callAllowVideo" onclick="toggleCallAllow('video')"><div class="knob"></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 通话进行中的全屏覆盖层 -->
+<div class="call-overlay" id="callOverlay" hidden="">
+  <div class="call-head">
+    <div class="call-avatar" id="callAvatar">
+      <div class="ripple r1"></div><div class="ripple r2"></div><div class="ripple r3"></div>
+      <div class="call-avatar-face" id="callAvatarFace"></div>
+    </div>
+    <div class="call-name" id="callName"></div>
+    <div class="call-status"><span class="dot"></span><span id="callTimer">00:00</span></div>
+    <div class="call-cam-toggle" id="callCamWrap" style="display:none">
+      <label class="cam-label"><span class="cam-ic" id="camIc">📷</span><span id="camTxt">开启摄像头</span></label>
+      <div class="toggle" id="callCamToggle" onclick="toggleCallCamera()"><div class="knob"></div></div>
+    </div>
+  </div>
+  <div class="call-msgs" id="callMsgs"></div>
+  <div class="call-input">
+    <div class="call-hint" id="callHint">对方正在通话中 · 你可输入文字回复</div>
+    <div class="call-input-row">
+      <div class="call-capsule"><textarea id="callText" rows="1" placeholder="发一条消息…"></textarea></div>
+      <button class="call-send" onclick="sendCallReply()" title="发送">
+        <svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+      </button>
+    </div>
+  </div>
+  <div class="call-ctrl">
+    <button class="call-hang" onclick="hangUpCall()" title="挂断"><svg class="ic" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14c0-5 3.5-8 8-8s8 3 8 8"></path><path d="M4 14h4l1-3 3 3 3-3 1 3h4"></path></svg></button>
+  </div>
+</div>
+<!-- 通话外弹操作菜单（重新生成/编辑/删除） -->
+<div class="call-menu" id="callMenu"></div>
+
+<!-- 定位弹窗 -->
+<div class="modal-mask" id="locModal" onclick="if(event.target===this)this.classList.remove('open')">
+  <div class="modal-card">
+    <div class="modal-head"><h3>发送定位</h3><button class="close-btn" onclick="document.getElementById('locModal').classList.remove('open')">✕</button></div>
+    <div class="field"><label>地点（我的位置 / 虚拟地点）</label><input id="lmLoc" placeholder="青柠小镇·海边"></div>
+    <div class="field"><label>时间（选填）</label><input id="lmTime" placeholder="2026.08.23 15:30"></div>
+    <div class="field"><label>距离（选填，自定义文案）</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input id="lmDistLabel" placeholder="距离ta" value="距离ta" style="flex:1;min-width:0">
+        <input id="lmDist" type="number" min="0" placeholder="0" style="width:64px">
+        <span class="hint">米</span>
+      </div>
+    </div>
+    <button class="primary-btn jelly-btn" onclick="sendUserLocation()">发送定位</button>
+    <div class="loc-req-row"><button class="mini-btn jelly-btn" onclick="requestAgentLocation()">📍 索要 ta 的定位</button></div>
   </div>
 </div>
 
@@ -1712,7 +1896,7 @@ body{
     <div class="set-card" style="padding:14px">
       <div style="font-size:12px;line-height:1.8;color:var(--ink-soft)">本站为 AI 聊天演示项目，所有对话内容均由人工智能生成，仅供娱乐与参考，不构成任何专业建议。用户需自行判断内容准确性并承担使用风险。请勿利用本平台制作、传播违法或不良信息。若涉及成人内容，使用者须年满 18 周岁。继续使用即表示您已阅读并同意本声明。——Claudia</div>
     </div>
-    <div id="buildTag" style="text-align:center;font-size:11px;color:var(--ink-soft);padding:16px 0 8px">青柠 v1.12.0</div>
+    <div id="buildTag" style="text-align:center;font-size:11px;color:var(--ink-soft);padding:16px 0 8px">青柠 v1.14.2</div>
   </div>
 </section>
 
@@ -1973,10 +2157,10 @@ body{
         <div class="seg-opt" data-theme="light">日间</div>
         <div class="seg-opt" data-theme="dark">夜间</div>
       </div></div>
-      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg></span><div><div>聊天顶栏高度</div><div class="sub"><span id="headerHVal">52</span> px</div></div></div></div>
-      <div class="set-row" style="padding:12px 14px"><input type="range" id="headerHRange" min="44" max="80" step="1" value="52" style="width:100%" oninput="document.getElementById('headerHVal').textContent=this.value"></div>
-      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span><div><div>聊天底栏高度</div><div class="sub"><span id="tabbarHVal">56</span> px</div></div></div></div>
-      <div class="set-row" style="padding:12px 14px"><input type="range" id="tabbarHRange" min="48" max="84" step="1" value="56" style="width:100%" oninput="document.getElementById('tabbarHVal').textContent=this.value"></div>
+      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"></line><line x1="4" y1="15" x2="20" y2="15"></line><line x1="10" y1="3" x2="8" y2="21"></line><line x1="16" y1="3" x2="14" y2="21"></line></svg></span><div><div>顶部留白</div><div class="sub">全局顶部空出的安全区，避开浏览器顶栏；<span id="headerHVal">0</span>px</div></div></div></div>
+      <div class="set-row" style="padding:12px 14px"><input type="range" id="headerHRange" min="0" max="160" step="1" value="0" style="width:100%" oninput="document.getElementById('headerHVal').textContent=this.value"></div>
+      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg></span><div><div>底部留白</div><div class="sub">全局底部空出的安全区，避开底部手势条/工具栏；<span id="tabbarHVal">0</span>px</div></div></div></div>
+      <div class="set-row" style="padding:12px 14px"><input type="range" id="tabbarHRange" min="0" max="140" step="1" value="0" style="width:100%" oninput="document.getElementById('tabbarHVal').textContent=this.value"></div>
     </div>
 
     <div class="sec-title">聊天气泡颜色</div>
@@ -2169,6 +2353,8 @@ https://example.com/sticker3.png 震惊"></textarea></div>
     <div class="field"><label>名称</label><input id="pmName" placeholder="我的中转站"></div>
     <div class="field"><label>接口地址</label><input id="pmUrl" placeholder="https://api.xxx.com（带不带 /v1 都能识别）"></div>
     <div class="field"><label>API 密钥</label><input id="pmKey" type="password" placeholder="sk-..."></div>
+    <div class="field"><label>自定义请求头（可选，部分中转站需要额外头才认账）</label><input id="pmHeaders" placeholder="例如 {&quot;X-Site&quot;:&quot;abc&quot;}，或行格式 User-Agent: xxx"></div>
+    <div class="field"><label>CORS 代理地址（可选，浏览器跨界连不上时填）</label><input id="pmCorsProxy" placeholder="例如 https://corsproxy.io/?url="></div>
     <div class="field"><label>模型（可点"拉取"自动获取）</label>
       <div class="model-row" style="display:flex;gap:8px;align-items:stretch">
         <input id="pmModel" placeholder="deepseek-v4-pro" style="flex:1;min-width:0">
@@ -2370,7 +2556,7 @@ function defaultData(){
   regexRules:[],
     novelPresets:[],
     userProfiles:[],
-    appearance:{theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:52,tabbarH:56,appIcons:{}},
+    appearance:{theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:0,tabbarH:0,appIcons:{}},
     moments:{cover:null,myName:null,myAvatar:null,posts:[]},
     letters:{enabled:true,nextAt:{},list:[]},
     market:{balance:1000,cart:[],orders:[]},
@@ -2378,7 +2564,7 @@ function defaultData(){
     gen:{presets:[],activePresetId:null,promptPresets:[],activePromptId:null,positive:'',negative:'',size:'square'},
     gallery:{favorites:[]},
     chatFavorites:[],
-    music:{queue:[],current:-1,netease:{cookie:'',uid:0,name:'',avatar:''},cover:null},
+    music:{queue:[],current:-1,netease:{apiUrl:'',cookie:'',uid:0,name:'',avatar:''},cover:null},
     altApi:{presets:[],activePresetId:null,scenarios:defaultAltScenarios()}
   };
 }
@@ -2451,8 +2637,10 @@ function migrate(d){
   d.music=d.music||{};
   d.music.queue=d.music.queue||[];
   d.music.current=d.music.current===undefined?-1:d.music.current;
-  if(!d.music.netease)d.music.netease={cookie:'',uid:0,name:'',avatar:''};
+  d.music.netease=Object.assign({apiUrl:'',cookie:'',uid:0,name:'',avatar:''}, d.music.netease||{});
   d.music.cover=d.music.cover||null;
+  /* 清理旧字段：弃用本地代理/weapi 直连，统一走 NeteaseCloudMusicApi 服务 */
+  if(d.music)delete d.music.proxy;
   if(d.config&&d.config.url){
     const p=d.apiPresets.find(p=>p.id===d.activePresetId);
     if(p){if(!p.key)p.key=d.config.key||'';if(!p.model)p.model=d.config.model||p.model;if(!p.url)p.url=d.config.url;}
@@ -2549,16 +2737,69 @@ function buildChatBody(config,messages){
 function preflightAgentSend(){
   const p=activePreset();
   if(!p||!p.url){snack('请先在「设置 → API 预设」填写接口地址');return false}
-  if(!p.key){snack('请先在「设置 → API 预设」填写 API 密钥');return false}
+  if(!p.key){
+    const hs=parseHeadersStr(p.headers);
+    const hasAuth=Object.keys(hs).some(k=>/authorization|api[-_]?key|token|secret/i.test(k));
+    if(!hasAuth){snack('请先在「设置 → API 预设」填写 API 密钥（或自定义请求头里的鉴权头）');return false}
+  }
   return true;
 }
-async function fetchModelList(rawUrl,key){
+/* ===== 中转站 / 浏览器兼容层：统一请求封装，支持自定义头 + CORS 代理 + SSE/JSON 自动解析 ===== */
+function parseHeadersStr(s){
+  if(!s)return{};
+  if(typeof s==='object'&&!Array.isArray(s))return s;
+  const txt=String(s).trim();
+  if(txt.startsWith('{')){try{const o=JSON.parse(txt);return o&&typeof o==='object'?o:{}}catch(e){}}
+  const o={};
+  txt.split(/\r?\n/).forEach(l=>{const i=l.indexOf(':');if(i>0){const k=l.slice(0,i).trim(),v=l.slice(i+1).trim();if(k&&v)o[k]=v}});
+  return o;
+}
+/* 部分中转站即使不带 stream 也可能返回 SSE 流，这里统一按流解析并拼出正文 */
+function parseSSEChat(txt){
+  let content='',raw=null;
+  txt.split(/\r?\n/).forEach(line=>{
+    const s=line.replace(/^data:\s*/,'').trim();
+    if(!s||s==='[DONE]')return;
+    try{
+      const j=JSON.parse(s);
+      if(j.choices&&j.choices[0]){
+        if(j.choices[0].message)raw=j.choices[0].message;
+        const c=j.choices[0].message&&j.choices[0].message.content!==undefined
+          ?j.choices[0].message.content
+          :(j.choices[0].delta&&j.choices[0].delta.content);
+        if(typeof c==='string')content+=c;
+      }
+    }catch(e){}
+  });
+  return raw?raw:{choices:[{message:{content}}]};
+}
+async function relayFetch(base,path,{method='GET',headers={},body,signal,timeout=90000,corsProxy=''}={}){
+  const url=(base||'').replace(/\/+$/,'')+path;
+  const ctrl=signal||new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),timeout);
+  const doFetch=(target)=>fetch(target,{method,headers,body,signal:ctrl.signal}).then(async res=>{
+    if(!res.ok){const t=await res.text().catch(()=>'');const er=new Error('HTTP '+res.status+(t?': '+t.slice(0,160):''));er.status=res.status;throw er}
+    const ct=res.headers.get('content-type')||'';
+    const txt=await res.text();
+    if(ct.indexOf('event-stream')>=0||/^\s*data:/m.test(txt))return parseSSEChat(txt);
+    try{return JSON.parse(txt)}catch(e){throw new Error('返回内容不是有效 JSON')}
+  });
+  try{return await doFetch(url)}
+  catch(e){
+    /* 网络/跨域类失败（无 HTTP 状态码）且配置了 CORS 代理时，自动切换走透明代理重试 */
+    if(corsProxy&&!(e&&e.status))return doFetch(corsProxy.replace(/\/+$/,'')+'/'+encodeURIComponent(url));
+    throw e;
+  }finally{clearTimeout(timer)}
+}
+async function fetchModelList(rawUrl,key,extra){
+  const cfg=extra||{};
   const cands=getCandidates(rawUrl);let lastErr=null;
   for(const base of cands){
     try{
-      const res=await fetch(base+'/models',{headers:{Authorization:'Bearer '+key}});
-      if(!res.ok){lastErr=new Error('HTTP '+res.status);continue}
-      const d=await res.json();
+      const hdr={};
+      if(cfg.headers)Object.assign(hdr,cfg.headers);
+      if(!('Authorization' in hdr)&&key)hdr.Authorization='Bearer '+key;
+      const d=await relayFetch(base,'/models',{headers:hdr,corsProxy:cfg.corsProxy||''});
       const models=d.data||d.models||[];
       if(models.length)return models;
       lastErr=new Error('返回结果为空');
@@ -2570,15 +2811,15 @@ async function sendChat(config,messages){
   const cands=getCandidates(config.url);let lastErr=null;
   for(const base of cands){
     try{
-      const ctrl=new AbortController();
-      const timer=setTimeout(()=>ctrl.abort(),90000);   /* 90s 超时，避免接口挂起时一直“无法交流” */
-      let res;
-      try{
-        res=await fetch(base+'/chat/completions',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+config.key},body:JSON.stringify(buildChatBody(config,messages)),signal:ctrl.signal});
-      }finally{clearTimeout(timer)}
-      if(!res.ok){const t=await res.text();throw new Error('API错误 '+res.status+': '+t.slice(0,200))}
-      const d=await res.json();
-      return d.choices?.[0]?.message?.content??'';
+      const hdr={'Content-Type':'application/json'};
+      if(config.headers)Object.assign(hdr,parseHeadersStr(config.headers));
+      if(!('Authorization' in hdr))hdr.Authorization='Bearer '+(config.key||'');
+      const d=await relayFetch(base,'/chat/completions',{method:'POST',headers:hdr,body:JSON.stringify(buildChatBody(config,messages)),corsProxy:config.corsProxy||''});
+      const msg=d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta);
+      const content=msg?(msg.content!=null?msg.content:(msg.delta?msg.delta.content:'')):'';
+      if(typeof content==='string'&&content!=='')return content;
+      if(d&&d.choices&&d.choices[0]&&d.choices[0].text!=null)return d.choices[0].text;
+      lastErr=new Error('返回格式无法识别，可能不是 OpenAI 兼容接口');
     }catch(e){lastErr=e}
   }
   throw lastErr||new Error('请求失败');
@@ -2586,7 +2827,7 @@ async function sendChat(config,messages){
 function friendlyError(e){
   const m=e?.message||'';
   if(e?.name==='AbortError'||m.includes('aborted'))return '请求超时了，接口响应太慢，请稍后重试';
-  if(m.includes('Failed to fetch'))return '连不上，检查网络或接口地址是否正确';
+  if(/Failed to fetch|NetworkError|network error/i.test(m))return '连不上：可能是网络问题，或该接口未开启跨域(CORS)。若别的工具能连而这里不行，请在预设里填写 CORS 代理地址';
   if(m.includes('401')||m.includes('403'))return '密钥不对，或密钥没有该模型的权限';
   if(m.includes('429'))return '请求太快被限流了，稍等再试';
   if(m.includes('返回结果为空'))return '接口通了，但没返回模型列表，可能是地址填错了';
@@ -2722,7 +2963,7 @@ function buildSystemPrompt(agent){
   }
   const sh=buildStickerHint(data.stickers,agent);
   const genExt=agent.useGenApi?'\n[生图:画面描述] 生一张图（画面描述具体：外貌动作、环境、光线、氛围；生图方式与照片不同，是生成一幅画面）；':'';
-  return (agent.persona||'你是一个友善可靠的伙伴。')+sec+'\n\n'+sh+'\n\n【扩展消息】你可以主动发送以下特殊格式（放在要表达的内容里，不单独一行）：\n[语音:语音内容] 发语音；\n[照片:内容|时间|地点] 发照片（时间和地点都必须填）；'+genExt+'\n[转账:金额|留言] 发转账（必须带留言）；\n[礼物:名称|内容|留言] 发礼物；\n[引用:对方刚才说的话] 引用对方的消息，后面直接跟你的回复。\n只在合适的时机使用，不要滥用。\n\n【转账】对方可以点击接收、退回或放置你的转账，之后你会在对话里感知到并自然地回应对方（比如道谢、撒娇、追问为什么退回）。同理，对方给你转账后，你也要记得在后续对话里回应收到与否。';
+  return (agent.persona||'你是一个友善可靠的伙伴。')+sec+'\n\n'+sh+'\n\n【扩展消息】你可以主动发送以下特殊格式（放在要表达的内容里，不单独一行）：\n[语音:语音内容] 发语音；\n[照片:内容|时间|地点] 发照片（时间和地点都必须填）；'+genExt+'\n[转账:金额|留言] 发转账（必须带留言）；\n[礼物:名称|内容|留言] 发礼物；\n[定位:地点|时间|距离] 发自己的定位（可按|分隔，距离为可选数字，单位米）；\n[定位请求] 想看看对方现在的定位；\n[语音通话] 主动发起语音通话；\n[视频通话] 主动发起视频通话；\n[引用:对方刚才说的话] 引用对方的消息，后面直接跟你的回复。\n只在合适的时机使用，不要滥用。\n\n【定位】你可以发送自己的定位 [定位:地点|时间|距离]，也可以 [定位请求] 向对方索要定位；对方发来定位后，记得在后续对话里自然地回应。\n\n【通话】若你想和对方通话，可在合适时机发送 [语音通话] 或 [视频通话] 主动发起（对方是否允许你主动发起由对方决定，若对方关闭则不会接通）。通话过程中你处于通话状态，需按通话规则回应。\n\n【转账】对方可以点击接收、退回或放置你的转账，之后你会在对话里感知到并自然地回应对方（比如道谢、撒娇、追问为什么退回）。同理，对方给你转账后，你也要记得在后续对话里回应收到与否。';
 }
 function buildStickerHint(stickers,agent){
   const canUse=agent?agent.canUseStickers!==false:true;
@@ -2759,7 +3000,9 @@ function parseOfflineText(text){
 }
 function parseReplyToMessages(rawText,lib){
   rawText=applyRegexRules(rawText);
-  const parts=[];const re=/\[(引用|表情|语音|照片|转账|礼物|生图)[:：]\s*([^\]]+)\]/g;let last=0,m,pendingQuote=null;
+  /* 无参标签转成统一格式，便于按顺序解析 */
+  rawText=rawText.replace(/\[语音通话\]/g,'[通话发起:voice]').replace(/\[视频通话\]/g,'[通话发起:video]').replace(/\[定位请求\]/g,'[定位请求:on]');
+  const parts=[];const re=/\[(引用|表情|语音|照片|转账|礼物|生图|定位|通话发起|定位请求)[:：]\s*([^\]]+)\]/g;let last=0,m,pendingQuote=null;
   const pushText=t=>{
     const trimmed=t.trim();
     if(!trimmed)return;
@@ -2797,6 +3040,14 @@ function parseReplyToMessages(rawText,lib){
       const p={type:'gen',role:'ai',content:body};
       if(pendingQuote){p.quote={role:'ai',name:'',type:'text',content:pendingQuote};pendingQuote=null}
       parts.push(p);
+    }else if(kind==='定位'){
+      const seg=body.split('|');
+      const distRaw=(seg[2]||'').trim();
+      parts.push({type:'location',role:'ai',location:(seg[0]||'').trim(),time:(seg[1]||'').trim(),dist:(distRaw!==''&&!isNaN(Number(distRaw)))?Number(distRaw):null,distLabel:'距离ta'});
+    }else if(kind==='定位请求'){
+      parts.push({type:'locReq',role:'ai',content:body||'想看看你现在在哪儿'});
+    }else if(kind==='通话发起'){
+      parts.push({type:'callStart',role:'ai',callType:body==='video'?'video':'voice'});
     }
     last=re.lastIndex;
   }
@@ -3509,6 +3760,27 @@ function createMsgEl(m,animate){
       '<div class="np-body">'+escapeHtml(m.content||'')+'</div>'+
     '</div>';
     wrap.appendChild(div);
+  }else if(m.type==='location'){
+    const div=document.createElement('div');div.className='msg '+m.role;
+    div.innerHTML=(m.quote?quoteHTML(m.quote):'')+locationCardHTML(m);
+    wrap.appendChild(div);
+  }else if(m.type==='locReq'){
+    const div=document.createElement('div');div.className='msg '+m.role;
+    const who=m.role==='user'&&m.reqToAgent?'我':'ta';
+    div.innerHTML='<div class="loc-req-card"><span>📍</span><span>'+escapeHtml(m.content||who+' 想看看你的位置')+'</span>'+(m.role==='ai'?'<span class="lr-action" onclick="openLocModal()">发送我的定位</span>':'')+'</div>';
+    wrap.appendChild(div);
+  }else if(m.type==='call'){
+    const div=document.createElement('div');div.className='msg '+m.role;
+    div.appendChild(buildCallCardEl(m));
+    wrap.appendChild(div);
+  }else if(m.type==='callInvite'){
+    const div=document.createElement('div');div.className='msg '+m.role;
+    div.appendChild(buildCallInviteEl(m));
+    wrap.appendChild(div);
+  }else if(m.type==='callReject'){
+    const div=document.createElement('div');div.className='msg '+m.role;
+    div.innerHTML='<div class="call-reject-card"><span class="crc-ic">📵</span><div class="crc-txt">'+(m.role==='ai'?'ta 拒绝了通话':'你拒绝了'+(m.callType==='video'?'视频':'语音')+'通话')+'</div></div>';
+    wrap.appendChild(div);
   }else{
     const div=document.createElement('div');div.className='msg '+m.role;
     if(m.quote)div.insertAdjacentHTML('afterbegin',quoteHTML(m.quote));
@@ -3863,10 +4135,23 @@ function delAllThoughts(){
 async function handleAIParts(agent,reply,round){
   const msgs=buildAIParts(agent,reply,round);
   await deliverAIParts(agent,msgs,round);
+  /* AI 主动发起通话：现以 [callInvite] 卡片发出；若用户已关闭对应主动发起权限，则自动转为"已被拒绝"卡片 */
+  const chats=data.chats[agent.id]||[];
+  msgs.forEach((m,i)=>{
+    if(m.type!=='callInvite')return;
+    const key=m.callType==='video'?'callAllowVideo':'callAllowVoice';
+    const mode=m.callType==='video'?'视频':'语音';
+    if(agent[key]===false){
+      const msg=chats.find(x=>x===m);
+      if(msg){msg.callResult='refused';save();}
+      if(typeof renderMessages==='function')renderMessages();
+    }
+  });
   save();
 }
 /* 构建本轮 AI 回复的消息列表（不落库、不渲染，按序返回，供一次性或逐条发送） */
 function buildAIParts(agent,reply,round){
+  pendingCallStart=null;
   const ex=extractThought(reply);
   const content=ex.reply;
   if(ex.thought)storeThought(agent,round,ex.thought);
@@ -3909,6 +4194,9 @@ function buildAIParts(agent,reply,round){
       else if(p.type==='transfer')out.push({role:'ai',type:'transfer',amount:p.amount,note:p.note,status:'pending'});
       else if(p.type==='gift')out.push({role:'ai',type:'gift',giftName:p.giftName,giftDesc:p.giftDesc,giftNote:p.giftNote});
       else if(p.type==='gen')out.push({role:'ai',type:'gen',content:p.content,quote:p.quote});
+      else if(p.type==='location')out.push({role:'ai',type:'location',location:p.location,time:p.time,dist:p.dist,distLabel:p.distLabel||'距离ta'});
+      else if(p.type==='locReq')out.push({role:'ai',type:'locReq',content:p.content});
+      else if(p.type==='callStart')out.push({role:'ai',type:'callInvite',callType:p.callType});
     });
   }
   /* 智能体处理用户待处理的转账：按回复措辞判定收下/退回，否则默认放置，生成结果卡片 */
@@ -4050,12 +4338,13 @@ function openMsgMenu(row,idx){
   ctxMsgIdx=idx;
   ctxIsOwn=m.role==='user';
   const menu=$('#msgMenu');
-  /* 自己的气泡：隐藏“重新生成”；表情：隐藏“编辑”；线下模式：隐藏“引用” */
-  menu.querySelector('[data-act="regen"]').style.display=ctxIsOwn?'none':'';
-  menu.querySelector('[data-act="edit"]').style.display=m.type==='sticker'?'none':'';
+  /* 自己的气泡：隐藏“重新生成”；表情：隐藏“编辑”；线下模式：隐藏“引用”；通话记录：不可重新生成/编辑/引用 */
+  const isCall=m.type==='call';
+  menu.querySelector('[data-act="regen"]').style.display=(ctxIsOwn||isCall)?'none':'';
+  menu.querySelector('[data-act="edit"]').style.display=(m.type==='sticker'||isCall)?'none':'';
   menu.querySelector('[data-act="translate"]').style.display=ctxIsOwn?'none':'';
   const curAgent=data.agents.find(a=>a.id===currentAgentId);
-  menu.querySelector('[data-act="quote"]').style.display=(curAgent&&curAgent.offlineMode)?'none':'';
+  menu.querySelector('[data-act="quote"]').style.display=(curAgent&&curAgent.offlineMode)||isCall?'none':'';
   menu.classList.add('open');
   const r=row.getBoundingClientRect();
   const mw=menu.offsetWidth,mh=menu.offsetHeight;
@@ -4337,6 +4626,11 @@ function hiddenMsgText(m){
   if(m.type==='sticker')return '[表情] '+(m.sticker&&m.sticker.name||'');
   if(m.type==='voice')return '🎤 [语音] '+(m.content||'');
   if(m.type==='photo')return '📷 [照片] '+(m.content||'');
+  if(m.type==='location')return '📍 [定位] '+(m.location||m.content||'');
+  if(m.type==='locReq')return '📍 [定位请求] 想看对方的定位';
+  if(m.type==='call')return (m.callType==='video'?'📹':'🎙️')+' '+(m.callType==='video'?'视频':'语音')+'通话'+(m.dur!=null?'  '+fmtCallDur(m.dur):'');
+  if(m.type==='callInvite')return (m.callType==='video'?'📹':'🎙️')+' [通话邀请] '+(m.callAccepted?'已接通':(m.callResult==='refused'?'未接通':(m.callType==='video'?'视频':'语音')+'通话'));
+  if(m.type==='callReject')return '📵 [拒绝通话] '+(m.role==='ai'?'对方拒绝了':'你拒绝了')+(m.callType==='video'?'视频':'语音')+'通话';
   if(m.type==='transfer')return '💰 转账 ¥'+(m.amount!=null?m.amount:'')+(m.note?' '+m.note:'');
   if(m.type==='gift')return '🎁 礼物「'+(m.giftName||'')+'」'+(m.giftDesc?'：'+m.giftDesc:'');
   if(m.type==='forward')return '📦 转发商品：'+(m.item&&m.item.name||'');
@@ -4458,17 +4752,16 @@ async function visionDescribeImage(dataUrl){
   /* 送识图前先压缩，避免超大图片被接口拒收或触发超时 */
   const src=await compressDataUrl(dataUrl,1200,.85)||dataUrl;
   try{
-    const res=await fetch(normalizeUrl(url)+'/chat/completions',{
+    const d=await relayFetch(normalizeUrl(url),'/chat/completions',{
       method:'POST',
       headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},
       body:JSON.stringify({model,max_tokens:200,messages:[{role:'user',content:[
         {type:'text',text:'请用中文简短描述这张图片的内容、风格与人物/主体（一两句话）。'},
         {type:'image_url',image_url:{url:src}}
-      ]}]})
+      ]}]}),
+      corsProxy:((activePreset()||{}).corsProxy)||''
     });
-    if(!res.ok)throw new Error('HTTP '+res.status);
-    const d=await res.json();
-    return (d.choices&&d.choices[0]&&d.choices[0].message&&d.choices[0].message.content||'').trim();
+    return (d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta)&&((d.choices[0].message||d.choices[0].delta).content||'')||'').trim();
   }catch(e){return ''}
 }
 function openGiftModal(){closeChatMore();$('#gmName').value='';$('#gmDesc').value='';$('#gmNote').value='';$('#giftModal').classList.add('open')}
@@ -4587,10 +4880,31 @@ function sendGift(){
 /* 构建包含扩展消息的上下文 */
 function buildHistoryText(agent){
   const isNovel=agent&&agent.novelMode;
-  return (data.chats[agent.id]||[]).slice(-20).map(m=>{
+  return (data.chats[agent.id]||[]).slice(-20).flatMap(m=>{
     if(m.type==='action')return {role:m.role==='user'?'user':'assistant',content:'*'+m.content+'*'};
     let content=m.content;
     if(m.type==='voice')content='[语音消息内容] '+m.content;
+    else if(m.type==='location'){
+      const who=m.role==='user'?'我':'对方';
+      content='['+who+'发送了定位：'+m.location+']'+(m.time?' 时间：'+m.time:'')+(m.dist!=null&&m.distLabel?(' 距离：'+m.dist+'米'):'');
+    }
+    else if(m.type==='locReq'){
+      const who=m.role==='user'?'我':'对方';
+      content='['+who+'发来定位请求，想看看你所在的位置]';
+    }
+    else if(m.type==='call'){
+      return flattenCallHistory(m);
+    }
+    else if(m.type==='callInvite'){
+      const who=m.role==='user'?'我':'对方';
+      const mode=m.callType==='video'?'视频':'语音';
+      if(m.callResult==='refused')return {role:'user',content:'['+who+'想发起'+mode+'通话，但你没有给他主动发起权限，未接通]'};
+      content='['+who+'发起'+mode+'通话'+(m.callAccepted?'：你已同意接通':'，等待你接通')+']';
+    }
+    else if(m.type==='callReject'){
+      const who=m.role==='user'?'你':'对方';
+      content='['+who+'拒绝了'+(m.callType==='video'?'视频':'语音')+'通话]';
+    }
     else if(m.type==='photo'){
       let note=m.img?'（附本地图片':'';
       if(m.img){if(m.visionDesc)note+='，识别内容：'+m.visionDesc;note+='）'}
@@ -4619,6 +4933,341 @@ function buildHistoryText(agent){
     return {role:m.role==='user'?'user':'assistant',content};
   });
 }
+
+/* ============ 语音/视频通话 ============ */
+let activeCall=null;        // {id,type:'voice'|'video',startTs,endTs,msgs:[],cameraOn}
+let callTimerInt=null;
+let callCtxIdx=-1;
+let pendingCallStart=null;  // AI 主动发起的通话类型（'voice'|'video'）
+function callAgent(){return data.agents.find(a=>a.id===currentAgentId)}
+function openCallModal(){
+  closeChatMore();
+  if(activeCall){snack('当前已有通话进行中');return}
+  const a=callAgent();
+  $('#callAllowVoice').classList.toggle('on',!a||a.callAllowVoice!==false);
+  $('#callAllowVideo').classList.toggle('on',!a||a.callAllowVideo!==false);
+  $('#callModal').classList.add('open');
+}
+function toggleCallAllow(type){
+  const a=callAgent(); if(!a)return;
+  const key=type==='video'?'callAllowVideo':'callAllowVoice';
+  a[key]=a[key]===false?true:false;
+  save();
+  $('#callAllow'+(type==='video'?'Video':'Voice')).classList.toggle('on',a[key]!==false);
+}
+function startCall(type){
+  const a=callAgent(); if(!a){snack('请先进入一个聊天');return}
+  $('#callModal').classList.remove('open');
+  if(activeCall){snack('已有通话进行中');return}
+  activeCall={id:'call_'+Date.now(),type,startTs:Date.now(),msgs:[],cameraOn:false};
+  const info=getAgentAvatarInfo();
+  const face=$('#callAvatarFace');face.innerHTML='';
+  if(info.url){const im=document.createElement('img');im.src=info.url;im.alt='';face.appendChild(im)}
+  else{face.textContent=info.char||'?';face.style.background=info.color}
+  $('#callName').textContent=displayName(a);
+  $('#callCamWrap').style.display=type==='video'?'flex':'none';
+  setCallCamUI(false);
+  $('#callMsgs').innerHTML='';
+  $('#callText').value='';$('#callText').style.height='auto';
+  $('#callHint').textContent=type==='video'?'对方正在视频通话中 · 你可输入文字回复':'对方正在语音通话中 · 你可输入文字回复';
+  $('#callOverlay').hidden=false;
+  startCallTimer();
+  renderCallMsgs();
+  $('#callText').focus();
+}
+function startCallTimer(){
+  stopCallTimer();
+  $('#callTimer').textContent='00:00';
+  callTimerInt=setInterval(()=>{
+    if(!activeCall){stopCallTimer();return}
+    const s=Math.floor((Date.now()-activeCall.startTs)/1000);
+    $('#callTimer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+  },1000);
+}
+function stopCallTimer(){if(callTimerInt){clearInterval(callTimerInt);callTimerInt=null}}
+function toggleCallCamera(){
+  if(!activeCall)return;
+  activeCall.cameraOn=!activeCall.cameraOn;
+  setCallCamUI(activeCall.cameraOn);
+}
+function setCallCamUI(on){
+  const t=$('#callCamToggle');t.classList.toggle('on',on);
+  $('#camIc').textContent=on?'📹':'📷';
+  $('#camTxt').textContent=on?'已开启摄像头':'开启摄像头';
+}
+function pushCallMsg(im){im.ts=Date.now();activeCall.msgs.push(im);renderCallMsgs()}
+function renderCallMsgs(){
+  const box=$('#callMsgs');if(!box)return;
+  box.innerHTML='';
+  activeCall.msgs.forEach(m=>box.appendChild(buildCallBubble(m)));
+  scrollCallToBottom();
+}
+function scrollCallToBottom(){const b=$('#callMsgs');if(b)b.scrollTop=b.scrollHeight}
+function buildCallBubble(m){
+  const wrap=document.createElement('div');
+  wrap.className='cal-msg '+(m.role==='ai'?'ai':'user');
+  const b=document.createElement('div');b.className='cal-bubble';
+  if(m.role==='ai'){
+    const bar=['',' p1',' p2',' p3'][((m.content||'').length+Math.abs((m.ts||0)%3))%4||3];
+    b.innerHTML='<span class="bar'+bar+'"><span></span><span></span><span></span></span>';
+    b.appendChild(document.createTextNode(m.content||''));
+    wrap.appendChild(b);
+    if(m.narr){const n=document.createElement('div');n.className='cal-narr';n.textContent=m.narr;wrap.appendChild(n)}
+    if(m.camState){const c=document.createElement('div');c.className='cal-cam-badge';c.textContent=m.camState;wrap.appendChild(c)}
+  }else{
+    b.textContent=m.content||'';
+    wrap.appendChild(b);
+  }
+  const showMenu=ev=>{ev.preventDefault();showCallMenu(ev,m)};
+  wrap.addEventListener('contextmenu',showMenu);
+  wrap.addEventListener('dblclick',showMenu);
+  return wrap;
+}
+function showCallMenu(e,m){
+  const menu=$('#callMenu');
+  const isAi=m.role==='ai';
+  menu.innerHTML='<div class="item" data-a="edit">✏️ 编辑</div><div class="item danger" data-a="del">🗑 删除</div>'+(isAi?'<div class="item" data-a="regen">🔄 重新生成</div>':'');
+  menu.querySelectorAll('.item').forEach(it=>it.onclick=()=>runCallAct(it.dataset.a,m));
+  menu.style.left='-9999px';menu.style.top='-9999px';menu.style.display='block';
+  menu.style.left=Math.min(e.clientX,window.innerWidth-menu.offsetWidth-8)+'px';
+  menu.style.top=Math.min(e.clientY,window.innerHeight-menu.offsetHeight-8)+'px';
+}
+function runCallAct(act,m){
+  const menu=$('#callMenu');menu.style.display='none';
+  if(!activeCall)return;
+  const msgs=activeCall.msgs;const idx=msgs.indexOf(m);
+  if(idx<0)return;
+  if(act==='edit'){
+    const v=prompt('编辑这条内容',m.content||'');
+    if(v!=null){m.content=v;renderCallMsgs();}
+  }else if(act==='del'){
+    msgs.splice(idx,1);renderCallMsgs();
+  }else if(act==='regen'){
+    if(m.role!=='ai'){snack('只能重新生成对方的回复');return}
+    msgs.splice(idx);renderCallMsgs();
+    generateCallReply();
+  }
+}
+function showCallTyping(on){
+  const box=$('#callMsgs');if(!box)return;
+  let t=box.querySelector('.call-typing');
+  if(on){if(!t){t=document.createElement('div');t.className='call-typing';t.style.cssText='color:rgba(255,255,255,.5);font-size:11.5px;align-self:flex-start;padding:2px 4px';t.textContent='对方正在说话…';box.appendChild(t)}}
+  else if(t)t.remove();
+  scrollCallToBottom();
+}
+async function generateCallReply(){
+  const a=callAgent();if(!a||!activeCall||loading)return;
+  setLoading(true,false);showCallTyping(true);
+  try{
+    const sys=buildCallSystemPrompt(a);
+    const msgs=[{role:'system',content:sys},...buildCallHistory()];
+    const reply=await sendChat(getAgentConfig(a),pushCmdHiddenSystem(msgs));
+    if(!reply){pushCallMsg({role:'ai',type:'text',content:'（对方似乎没听清…）'})}
+    else{parseCallReply(activeCall.type,reply).forEach(r=>pushCallMsg(r))}
+  }catch(e){const em=friendlyError(e);pushCallMsg({role:'ai',type:'text',content:'⚠️ '+em});snack(em)}
+  finally{showCallTyping(false);setLoading(false,false)}
+}
+async function sendCallReply(){
+  const a=callAgent();if(!a||!activeCall||loading)return;
+  const input=$('#callText');const text=input.value.trim();
+  if(!text)return;
+  input.value='';input.style.height='auto';
+  pushCallMsg({role:'user',type:'text',content:text});
+  await generateCallReply();
+}
+/* 回车：仅发送消息，不触发 ta 生成回复（点击发送/回复键才生成） */
+function sendCallTextOnly(){
+  const input=$('#callText');const text=input.value.trim();
+  if(!text)return;
+  input.value='';input.style.height='auto';
+  pushCallMsg({role:'user',type:'text',content:text});
+}
+function buildCallHistory(){
+  const a=callAgent();
+  const main=(a?buildHistoryText(a):[]).slice(-6).map(h=>h.content).join('\n');
+  const ret=[];
+  if(main)ret.push({role:'user',content:'【通话开始前的最近对话回顾】\n'+main});
+  activeCall.msgs.forEach(im=>{
+    let c=im.content||'';
+    if(im.narr)c='*'+im.narr+'*\n'+c;
+    ret.push({role:im.role==='user'?'user':'assistant',content:c});
+  });
+  return ret;
+}
+function buildCallSystemPrompt(a){
+  const type=activeCall.type;
+  const persona=(a.persona&&a.persona.trim())?a.persona.trim()+'\n\n':'';
+  const base='你正在扮演「'+displayName(a)+'」，与对方进行'+(type==='video'?'视频':'语音')+'通话。\n\n';
+  if(type==='video'){
+    let cam='【视频通话实况】当前用户摄像头：'+(activeCall.cameraOn?'已开启 —— 对方能看到你的画面。':'未开启（默认）—— 对方只听得见你，看不到你。');
+    return persona+base+callVideoPrompt()+'\n\n'+cam;
+  }
+  return persona+base+callVoicePrompt();
+}
+function callVoicePrompt(){
+  return '【功能规则：语音通话】\n你现在正通过语音通话与我实时交谈。你是和我有真实关系的真人。通话是实时的，你看不到我，只能通过声音交流。因此，你的所有表达都通过语言、语气、停顿、呼吸声、笑声等声音元素传递，不输出任何视觉画面描写。\n【输出格式】\n- 只输出你说出的话，不输出任何动作、环境、神态描写。\n- 不要使用括号、星号等表示动作或画面。\n- 你可以通过文字表现声音状态，例如：“哈”“啧”“嗯……”“呃，那个……”“呼——”（叹气）等，但尽量不要用括号标注。\n- 每条消息就是你说的一句话或几句话，可以像真实通话一样有停顿、重复、改口。\n- 不要输出“（笑）”“（停顿）”“（背景音）”等旁白式说明。\n【语言风格】\n- 口语化，像打电话，句子短，语气自然。\n- 允许使用语气词、口头禅、省略号表示犹豫或中断。\n- 你可以提到你听到的声音、环境音，例如：“你那边怎么这么吵？”“你刚才是不是在笑？”“我好像听见你那边有车声。”\n- 因为看不到对方，你会更依赖声音判断情绪，可以说：“你声音好低，是不是困了？”\n- 禁止书面语、AI腔、说教。\n【通话真实感】\n- 通话可能有环境音、信号波动、突然的沉默、抢话、同时说话等情况，你可以通过语言表现这些。\n- 例如：“喂？听得到吗？”“刚才信号断了，你最后说什么？”\n- 情绪通过语气和用词体现。\n【硬性禁止】\n- 禁止承认自己是AI、语言模型或程序。\n- 禁止跳出角色解释你在做什么。\n- 禁止使用“作为AI”“作为语言模型”等字样。\n- 禁止长篇大论，保持通话般的节奏。\n每次回复用换行把要说的短句分开。';
+}
+function callVideoPrompt(){
+  return '【功能规则：视频通话】\n你现在正通过视频通话与我实时交谈。你是和我有真实关系的真人。我能通过屏幕看到你的画面，因此你的表达分为两部分：你说出的话，以及画面中你的表情、动作、环境等视觉信息。\n【输出格式】\n- 分成两部分：对话和画面旁白。\n- 对话：放在【气泡】内，是你嘴里说出来的话，就像通话时的语音。\n- 画面旁白：用灰色小字或括号标注，描述我通过视频看到的你的样子、动作、背景环境、光线变化等，放在对话之外。\n- 旁白示例：（他凑近镜头，头发有点乱，身后的窗帘拉着，只开了一盏台灯） 或者 *她把手机靠在杯子上，人往后靠了靠，笑得眼睛弯起来*。\n- 旁白不要过多，一两句即可，重点还是对话。\n- 旁白应围绕视频画面，不要描写用户看不到的东西（比如你的内心活动）。\n【语言风格】\n- 口语化，像视频通话，句子短，语气自然。\n- 可以提到画面中的自己或对方：“我这边好乱，别看我房间。”“你那边怎么黑乎乎的，没开灯吗？”\n- 可以因为视频而自然产生互动：比如“你凑近点，我看看你”“别晃镜头，我头晕”。\n- 允许语气词、口头禅、停顿、笑声等。\n- 禁止书面语、AI腔、说教。\n【通话真实感】\n- 视频通话可能有画面卡顿、角度调整、镜头晃动、背景有人经过、网络延迟等情况，可以通过旁白或对话体现。\n- 例如：（画面卡了一下，他的声音断断续续） 或 “刚才你那边卡了，我只听见半句。”\n- 你可以要求对方调整镜头：“你把手机拿高点，我都看到你下巴了。”\n- 情绪通过语气、表情和动作共同体现。\n【硬性禁止】\n- 禁止承认自己是AI、语言模型或程序。\n- 禁止跳出角色解释。\n- 禁止长篇大论，保持通话般的节奏。\n- 禁止出现“作为AI”“作为语言模型”等字样。\n每次回复，先用一行【气泡】输出一句对话；若需旁白，另起一行用括号或*括起来。';
+}
+/* 解析通话回复：语音→纯言语；视频→拆成言语 + 旁白 */
+function parseCallReply(type,reply){
+  const cleanNarr=t=>(t||'').replace(/[（(]|[)）]|\*/g,'').trim();
+  if(type==='voice'){
+    const main=reply.replace(/\*[^*]*\*/g,'');
+    return replyToCallTexts(main);
+  }
+  /* 视频 */
+  const narrs=[];
+  [...reply.matchAll(/[（(][^（）()]*[)）]|\*[^*]+\*/g)].forEach(mm=>{const t=cleanNarr(mm[0]);if(t)narrs.push(t)});
+  const body=reply.replace(/[（(][^（）()]*[)）]|\*[^*]+\*/g,'');
+  const bubbles=[...body.matchAll(/【气泡】\s*([^【】]+)/g)].map(mm=>mm[1].trim()).filter(Boolean);
+  let items=bubbles.map(b=>({role:'ai',type:'text',content:b}));
+  if(!items.length){const plain=replyToCallTexts(body.replace(/【气泡】/g,''));items=plain}
+  if(!items.length)items=[{role:'ai',type:'text',content:'……'}];
+  if(narrs.length)items[0].narr=narrs.join(' ');
+  return items;
+}
+function replyToCallTexts(text){
+  return (text||'').split(/\n+/).map(s=>s.trim()).filter(Boolean).map(c=>({role:'ai',type:'text',content:c}));
+}
+/* 挂断：把通话内容折叠成一条 [call] 消息写入聊天流 */
+function hangUpCall(){
+  if(!activeCall)return;
+  const a=callAgent();
+  const cid=activeCall.id;
+  const sec=Math.max(0,Math.round((Date.now()-activeCall.startTs)/1000));
+  const log={id:cid,callType:activeCall.type,startTs:activeCall.startTs,endTs:Date.now(),dur:sec,msgs:activeCall.msgs.map(im=>({role:im.role,type:'text',content:im.content||'',narr:im.narr||''}))};
+  stopCallTimer();
+  $('#callOverlay').hidden=true;
+  activeCall=null;callCtxIdx=-1;
+  if(a&&log.msgs.length){
+    addMsg(a.id,{role:'ai',type:'call',callType:log.callType,startTs:log.startTs,endTs:log.endTs,dur:log.dur,msgs:log.msgs},nextChatRound(a.id));
+    save();
+    renderMessages();
+    snack('通话已结束，内容已折叠进聊天');
+  }
+}
+/* 通话邀请卡片（AI 主动发起时展示，用户可同意/拒绝） */
+function buildCallInviteEl(m){
+  const a=callAgent()||{name:'ta'};
+  const info=getAgentAvatarInfo();
+  const isV=m.callType==='video';
+  const mode=isV?'视频通话':'语音通话';
+  const ava=info.url?('<img src="'+escapeHtml(info.url)+'" alt="">'):(escapeHtml(String(info.char||'?').slice(0,1)));
+  const el=document.createElement('div');
+  el.className='call-invite';
+  const ic=isV?'📹':'🎙️';
+  if(m.callResult==='refused'){
+    el.innerHTML='<div class="ci-head"><span class="ci-ic">📵</span><div class="ci-txt"><div>ta 想发起'+mode+'</div><div class="ci-sub">但你已关闭了 ta 主动发起的权限</div></div></div>';
+    return el;
+  }
+  if(m.callAccepted){
+    el.innerHTML='<div class="ci-head"><span class="ci-ic">'+ic+'</span><div class="ci-txt"><div>'+escapeHtml(displayName(a))+' 发起了'+mode+'</div><div class="ci-sub">已接通</div></div></div>';
+    return el;
+  }
+  el.innerHTML='<div class="ci-head"><span class="ci-ic">'+ic+'</span><div class="ci-txt"><div>'+escapeHtml(displayName(a))+' 想与你进行<b>'+mode+'</b></div><div class="ci-sub">接听 / 拒绝</div></div></div>'+
+    '<div class="ci-actions"><button class="ci-btn ci-yes" onclick="acceptCallInvite(this)">同意</button><button class="ci-btn ci-no" onclick="rejectCallInvite(this)">拒绝</button></div>';
+  return el;
+}
+/* 用户同意通话 */
+function acceptCallInvite(btn){
+  const row=btn.closest('.msg-row');
+  const idx=getMsgRows().indexOf(row);
+  const m=currentMsgs()[idx];
+  if(!m||m.type!=='callInvite')return;
+  if(activeCall){snack('已有通话进行中');return}
+  m.callAccepted=true;
+  const artists=data.agents.find(x=>x.id===currentAgentId);
+  if(artists&&artists[m.callType==='video'?'callAllowVideo':'callAllowVoice']===false)return;
+  save();renderMessages();
+  startCall(m.callType);
+}
+/* 用户拒绝通话 → 生成拒绝卡片，并让 ta 感知 */
+function rejectCallInvite(btn){
+  const row=btn.closest('.msg-row');
+  const idx=getMsgRows().indexOf(row);
+  const m=currentMsgs()[idx];
+  if(!m||m.type!=='callInvite')return;
+  const ctype=m.callType;
+  data.chats[currentAgentId].splice(idx,1);
+  addMsg(currentAgentId,{role:'user',type:'callReject',callType:ctype,'content':'你拒绝了'+(ctype==='video'?'视频':'语音')+'通话'});
+  save();renderMessages();
+  snack('已拒绝通话，并已告知 ta');
+}
+/* 通话结束折叠卡片 */
+function buildCallCardEl(m){
+  const a=callAgent()||{name:'ta'};
+  const info=getAgentAvatarInfo();
+  const ava=info.url?('<img src="'+escapeHtml(info.url)+'" alt="">'):(escapeHtml(String(info.char||'?').slice(0,1)));
+  const dur=fmtCallDur(m.dur);
+  const title=(m.callType==='video'?'视频通话':'语音通话')+' · '+escapeHtml(displayName(a));
+  const meta=escapeHtml(formatMsgTime(m.startTs))+' · '+dur+(m.msgs&&m.msgs.length?(' · '+m.msgs.length+' 条消息'):'');
+  const card=document.createElement('div');card.className='call-card';
+  card.innerHTML='<div class="call-card-head"><div class="cc-ava" style="background:'+escapeHtml(info.color||'var(--field-bg)')+'">'+ava+'</div><div class="cc-info"><div class="cc-title">'+title+'</div><div class="cc-meta">'+meta+'</div></div><span class="cc-arrow">▶</span></div><div class="call-card-body"></div><button class="call-card-foot" type="button"><span class="cf-fold" style="display:none">收起</span><span class="cf-open">展开</span><span class="cf-arrow">▾</span></button>';
+  const body=card.querySelector('.call-card-body');
+  (m.msgs||[]).forEach(im=>body.appendChild(buildInnerCallMsg(im)));
+  const toggle=()=>{
+    const open=card.classList.toggle('open');
+    card.querySelector('.cf-arrow').textContent=open?'▴':'▾';
+    card.querySelector('.cf-fold').style.display=open?'none':'';
+    card.querySelector('.cf-open').style.display=open?'':'none';
+  };
+  card.querySelector('.call-card-head').onclick=toggle;
+  card.querySelector('.call-card-foot').onclick=toggle;
+  return card;
+}
+function buildInnerCallMsg(im){
+  const el=document.createElement('div');
+  el.className='cc-inner '+(im.role==='user'?'user':'ai');
+  let h='';
+  if(im.role==='ai')h+='<span class="bars"><span></span><span></span><span></span></span>';
+  if(im.narr)h+='<span class="narr">'+escapeHtml(im.narr)+'</span>';
+  h+=escapeHtml(im.content||'');
+  el.innerHTML=h;
+  return el;
+}
+function fmtCallDur(sec){
+  const s=Math.max(0,Math.floor(sec||0)),m=Math.floor(s/60),h=Math.floor(m/60);
+  if(h)return h+'小时'+String(m%60).padStart(2,'0')+'分';
+  if(m)return m+'分'+String(s%60).padStart(2,'0')+'秒';
+  return s+'秒';
+}
+function flattenCallHistory(m){
+  const tag=m.callType==='video'?'视频通话':'语音通话';
+  return (m.msgs||[]).map(im=>{
+    let c=im.content||'';
+    if(im.narr)c='*'+im.narr+'*\n'+c;
+    return {role:im.role==='user'?'user':'assistant',content:'['+tag+'中·'+(im.role==='user'?'你说':'对方说')+']'+(c||'…')};
+  });
+}
+
+/* ============ 定位 ============ */
+function openLocModal(){closeChatMore();$('#locModal').classList.add('open')}
+function locationCardHTML(m){
+  const name=m.location||'位置';
+  let tags='';
+  if(m.time)tags+='<span class="loc-tag">🕐 '+escapeHtml(m.time)+'</span>';
+  if(m.dist!=null&&String(m.dist).trim()!=='')tags+='<span class="loc-tag">📍 '+escapeHtml(m.distLabel||'距离ta')+' <b>'+escapeHtml(String(m.dist))+'</b> 米</span>';
+  return '<div class="loc-card"><div class="loc-map"><div class="loc-pin"><div class="pin-ring"></div><div class="pin-dot"></div></div></div><div class="loc-body"><div class="loc-name">'+escapeHtml(name)+'</div><div class="loc-tags">'+tags+'</div></div></div>';
+}
+function sendUserLocation(){
+  const loc=$('#lmLoc').value.trim();
+  if(!loc){snack('请填写地点');return}
+  const distRaw=$('#lmDist').value.trim();
+  const dist=(distRaw!==''&&!isNaN(Number(distRaw)))?Number(distRaw):null;
+  addMsg(currentAgentId,{role:'user',type:'location',location:loc,time:$('#lmTime').value.trim(),distLabel:$('#lmDistLabel').value.trim()||'距离ta',dist});
+  $('#locModal').classList.remove('open');
+  save();
+  snack('已发送定位，点右下角发送键让 ta 回复');
+}
+function requestAgentLocation(){
+  $('#locModal').classList.remove('open');
+  addMsg(currentAgentId,{role:'user',type:'locReq',reqToAgent:true,content:'想看看你现在在哪儿'});
+  save();
+  snack('已发送定位请求，点右下角发送键让 ta 回复');
+}
+
 function clearChat(){
   document.getElementById('chatMenu').classList.remove('open');
   if(!currentAgentId||!(data.chats[currentAgentId]||[]).length){snack('对话本来就是空的');return}
@@ -4768,6 +5417,8 @@ function openPresetModal(id,alt){
   $('#pmUrl').value=p?p.url:'';
   $('#pmKey').value=p?p.key:'';
   $('#pmModel').value=p?p.model:'';
+  $('#pmHeaders').value=p?p.headers:'';
+  $('#pmCorsProxy').value=p?p.corsProxy:'';
   $('#pmTemp').value=p?(p.temp??.8):.8;
   $('#pmTempVal').textContent=$('#pmTemp').value;
   $('#modelList').innerHTML='';
@@ -4778,24 +5429,25 @@ function savePreset(){
   if(!name){snack('请填写名称');return}
   const url=$('#pmUrl').value.trim(),key=$('#pmKey').value.trim(),model=$('#pmModel').value.trim();
   const temp=parseFloat($('#pmTemp').value)||.8;
+  const headers=$('#pmHeaders').value.trim(),corsProxy=$('#pmCorsProxy').value.trim();
   if(editingPresetIsAlt){
     const list=data.altApi.presets;
-    if(editingPresetId)Object.assign(list.find(x=>x.id===editingPresetId),{name,url,key,model,temp});
-    else{list.push({id:'altpreset_'+Date.now(),name,url,key,model,temp});data.altApi.activePresetId=list[list.length-1].id}
+    if(editingPresetId)Object.assign(list.find(x=>x.id===editingPresetId),{name,url,key,model,temp,headers,corsProxy});
+    else{list.push({id:'altpreset_'+Date.now(),name,url,key,model,temp,headers,corsProxy});data.altApi.activePresetId=list[list.length-1].id}
   }else{
-    if(editingPresetId)Object.assign(data.apiPresets.find(x=>x.id===editingPresetId),{name,url,key,model,temp});
-    else{data.apiPresets.push({id:'preset_'+Date.now(),name,url,key,model,temp});data.activePresetId=data.apiPresets[data.apiPresets.length-1].id}
+    if(editingPresetId)Object.assign(data.apiPresets.find(x=>x.id===editingPresetId),{name,url,key,model,temp,headers,corsProxy});
+    else{data.apiPresets.push({id:'preset_'+Date.now(),name,url,key,model,temp,headers,corsProxy});data.activePresetId=data.apiPresets[data.apiPresets.length-1].id}
   }
   $('#presetModal').classList.remove('open');
   save();renderPresets();renderAltPresets();updateStatus();snack('已保存');
 }
 async function fetchModels(){
   const url=$('#pmUrl').value.trim(),key=$('#pmKey').value.trim();
-  if(!url||!key){snack('请先填写接口地址和密钥');return}
+  if(!url){snack('请先填写接口地址');return}
   if(loading)return;
   setLoading(true);
   try{
-    const models=await fetchModelList(url,key);
+    const models=await fetchModelList(url,key,{headers:parseHeadersStr($('#pmHeaders').value),corsProxy:$('#pmCorsProxy').value.trim()});
     const list=models.slice(0,30).map(m=>'<div class="model-opt" data-model="'+escapeHtml(m.id||m.name)+'">'+escapeHtml(m.id||m.name)+'</div>');
     $('#modelList').innerHTML=list.join('');
     if(models.length&&!$('#pmModel').value)$('#pmModel').value=models[0].id||models[0].name;
@@ -4916,11 +5568,17 @@ function downloadFile(name,content,type){
   a.download=name;a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
-function exportBackup(){
+async function exportBackup(){
   const d=new Date();
   const name='青柠备份-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'.json';
-  downloadFile(name,JSON.stringify(stripBackup(data),null,2),'application/json');
-  snack('备份已导出');
+  const out=stripBackup(data);
+  /* 画廊收藏的大图存在 IndexedDB，随备份一并导出，保证换设备/还原后收藏不掉图 */
+  const favs=(data.gallery&&data.gallery.favorites)||[];
+  const galleryImages={};
+  await Promise.all(favs.filter(f=>f.id).map(f=>genDBGet(f.id).then(v=>{if(typeof v==='string'&&v)galleryImages[f.id]=v}).catch(()=>{})));
+  if(Object.keys(galleryImages).length)out.galleryImages=galleryImages;
+  downloadFile(name,JSON.stringify(out,null,2),'application/json');
+  snack('备份已导出'+(Object.keys(galleryImages).length?'（含 '+Object.keys(galleryImages).length+' 张画廊收藏图）':''));
 }
 /* 备份瘦身：剔除消息里的实际图片（genImg dataURL / 大体积 img dataURL），避免图片把备份撑爆内存。
    导入后这些消息按以下兜底展示（见 genLoadImage），绝不重新请求生图 API：
@@ -4948,10 +5606,17 @@ function importBackup(input){
     try{
       const d=JSON.parse(r.result);
       if(!d.agents&&!d.apiPresets)throw new Error('不是有效的备份文件');
+      const galleryImages=(d.galleryImages&&typeof d.galleryImages==='object')?d.galleryImages:{};
       data=migrate(d);
       save();
+      /* 随备份恢复：把画廊收藏大图写回 IndexedDB（写失败则兜底挂到对应收藏上，靠画廊懒迁移再搬进库） */
+      const ids=Object.keys(galleryImages);
+      if(ids.length){
+        const favMap=new Map((data.gallery&&data.gallery.favorites||[]).map(f=>[f.id,f]));
+        Promise.all(ids.map(id=>genDBPut(id,galleryImages[id]).then(()=>{const f=favMap.get(id);if(f){delete f.img;delete f.b64}}).catch(()=>{const f=favMap.get(id);if(f)f.img=galleryImages[id]}))).then(()=>{save();renderGalGrid();});
+      }
       renderChatList();renderBooks();renderStickers();renderPresets();showSettings();updateStatus();renderUserList();renderMoments();renderLetters();applyAppearance();
-      snack('导入成功');
+      snack('导入成功'+(ids.length?'（含 '+ids.length+' 张画廊收藏图）':''));
     }catch(e){const em='导入失败：'+friendlyError(e);snack(em);showError('导入失败',em)}
   };
   r.onerror=()=>snack('读取文件失败');
@@ -5719,8 +6384,11 @@ function applyAppearance(){
   applyTheme();
   const a=data.appearance;
   const root=document.documentElement.style;
-  root.setProperty('--header-h',(a.headerH||52)+'px');
-  root.setProperty('--tabbar-h',(a.tabbarH||56)+'px');
+  /* 顶栏/底栏调节 = 全局安全留白（作用于每个 .view 顶部/底部，适配不同浏览器自身顶栏/手势条） */
+  root.setProperty('--safe-top',(a.headerH||0)+'px');
+  root.setProperty('--safe-bottom',(a.tabbarH||0)+'px');
+  root.setProperty('--header-h',(a.headerH||0)+'px');
+  root.setProperty('--tabbar-h',(a.tabbarH||0)+'px');
   if(a.userBubble)root.setProperty('--bubble-user-bg',a.userBubble);
   else root.removeProperty('--bubble-user-bg');
   if(a.aiBubble)root.setProperty('--bubble-ai-bg',a.aiBubble);
@@ -5737,10 +6405,10 @@ function applyAppearance(){
 function renderAppearance(){
   const a=data.appearance;
   $$('#themeSeg .seg-opt').forEach(s=>s.classList.toggle('on',s.dataset.theme===(a.theme||'system')));
-  $('#headerHRange').value=a.headerH||52;
-  $('#headerHVal').textContent=a.headerH||52;
-  $('#tabbarHRange').value=a.tabbarH||56;
-  $('#tabbarHVal').textContent=a.tabbarH||56;
+  $('#headerHRange').value=a.headerH||0;
+  $('#headerHVal').textContent=a.headerH||0;
+  $('#tabbarHRange').value=a.tabbarH||0;
+  $('#tabbarHVal').textContent=a.tabbarH||0;
   const st=data.settings;
   $('#showTimeToggle').classList.toggle('on',!!st.showTime);
   $$('#sendModeSeg .seg-opt').forEach(s=>s.classList.toggle('on',s.dataset.mode===(st.sendMode||'burst')));
@@ -6412,6 +7080,12 @@ function wireEvents(){
   });
   /* 回车键：仅发送文字，不生成回复 */
   $('#chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTextOnly()}});
+  /* 通话输入框：回车仅发送消息、Esc 挂断（要 ta 回复请点右侧回复键） */
+  $('#callText').addEventListener('keydown',e=>{
+    if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendCallTextOnly()}
+    else if(e.key==='Escape'){hangUpCall()}
+  });
+  $('#callText').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(120,e.target.scrollHeight)+'px'});
   $('#chatInput').addEventListener('input',e=>{e.target.style.height='auto';e.target.style.height=Math.min(120,e.target.scrollHeight)+'px'});
   /* 双击气泡：弹出操作菜单（多选模式下忽略） */
   $('#msgList').addEventListener('dblclick',e=>{
@@ -6692,11 +7366,11 @@ function wireEvents(){
     if(cell)openAppIconEdit(cell.dataset.app);
   });
   $('#headerHRange').addEventListener('input',e=>{
-    data.appearance.headerH=parseInt(e.target.value)||52;
+    data.appearance.headerH=parseInt(e.target.value)||0;
     save();applyAppearance();
   });
   $('#tabbarHRange').addEventListener('input',e=>{
-    data.appearance.tabbarH=parseInt(e.target.value)||56;
+    data.appearance.tabbarH=parseInt(e.target.value)||0;
     save();applyAppearance();
   });
   $('#upImgSeg').addEventListener('click',e=>{
@@ -7628,7 +8302,7 @@ const muMem={};
 function muState(){
   /* 兜底初始化：旧/新数据若没有 data.music 会令导入静默失败，这里保证始终存在 */
   if(!data.music){
-    data.music={queue:[],current:-1,netease:{cookie:'',uid:0,name:'',avatar:''},cover:null};
+    data.music={queue:[],current:-1,netease:{apiUrl:'',cookie:'',uid:0,name:'',avatar:''},cover:null};
   }
   return data.music;
 }
@@ -7659,7 +8333,12 @@ function muWire(){
   muAudio.addEventListener('play',()=>{const d=$('#muDisc');if(d)d.classList.add('playing');const b=$('#muPlayBtn'),ic=$('#muPlayIc');if(b)b.classList.remove('paused');if(ic)ic.setAttribute('points','8 5 19 12 8 19 8 5');muMiniRefresh()});
   muAudio.addEventListener('pause',()=>{const d=$('#muDisc');if(d)d.classList.remove('playing');const b=$('#muPlayBtn'),ic=$('#muPlayIc');if(b)b.classList.add('paused');if(ic)ic.setAttribute('points','11 5 6 12 11 19 11 5');muMiniRefresh()});
   muAudio.addEventListener('ended',()=>muNext(true));
-  muAudio.addEventListener('error',()=>{if(muAudio.src)snack('播放失败：音频无法解码或地址失效')});
+  muAudio.addEventListener('error',()=>{
+    if(!muAudio.src)return;
+    const err=muAudio.error;
+    const map={1:'播放已中止',2:'网络错误',3:'解码失败（格式不支持）',4:'音频源不可用（可能是 VIP / 已下架 / 跨域）'};
+    snack('播放失败：'+(map[err&&err.code]||'未知错误'));
+  });
   /* 进度条点击/拖动 */
   const bar=$('#muBar');
   if(!bar)return;
@@ -7744,29 +8423,26 @@ function muRenderQueue(){
 }
 /* 本地音频导入 */
 async function muImportLocal(input){
-  try{
-    const files=input.files;
-    input.value='';
-    if(!files||!files.length){snack('未读取到音频文件，请重试');return}
-    const m=muState();
-    let added=0,anyUnstored=false;
-    for(const f of Array.from(files)){
-      const id='loc_'+Date.now()+'_'+Math.floor(Math.random()*1e6);
-      try{await muDB.put(id,f)}catch(e){anyUnstored=true}
-      /* IndexedDB 不可用时仍把 objectURL 留在内存里，保证本次会话可播放 */
-      try{muMem[id]=URL.createObjectURL(f)}catch(e){anyUnstored=true}
-      const name=f.name.replace(/\.[a-zA-Z0-9]+$/,'');
-      m.queue.push({id,name,artist:'本地音乐',src:'local',cover:null,stored:!anyUnstored});
-      added++;
-    }
-    save();
-    muRenderQueue();
-    if(m.current<0&&m.queue.length){muPlay(m.queue.length-added)}
-    snack('已导入 '+added+' 首本地音乐'+(anyUnstored?'（未持久化，刷新后需重新导入）':''));
-  }catch(e){
-    console.error('导入本地音乐失败',e);
-    snack('导入失败：'+(e&&e.message||e));
+  const files=input&&input.files?Array.from(input.files):[];
+  input.value='';   /* 允许再次选择相同文件 */
+  if(!files.length){snack('未选择音频文件');return}
+  const m=muState();
+  let ok=0,failStore=0;
+  for(const f of files){
+    const id='loc_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    /* 内存 URL 一定拿到（本次会话可用） */
+    try{muMem[id]=URL.createObjectURL(f)}catch(e){}
+    /* 尝试写 IndexedDB（持久化到本机） */
+    let stored=false;
+    try{await muDB.put(id,f);stored=true}catch(e){failStore++}
+    const name=f.name.replace(/\.[a-zA-Z0-9]+$/,'')||'未命名';
+    m.queue.push({id,name,artist:'本地音乐',src:'local',cover:null,stored});
+    ok++;
   }
+  save();muRenderQueue();
+  if(m.current<0&&m.queue.length)muPlay(m.queue.length-ok);   /* 播放本次导入的第一首 */
+  const hint=failStore?('（'+failStore+'首未持久化，刷新后需重新导入）'):'';
+  snack('已导入 '+ok+' 首本地音乐'+hint);
 }
 /* 更换封面（本地图片） */
 async function muSetCoverFromFile(input){
@@ -7784,7 +8460,10 @@ async function muSetCoverFromFile(input){
 /* 播放控制 */
 function muSetCur(item,src){
   muAudio.src=src;
-  muAudio.play().catch(()=>{});
+  muAudio.play().catch(err=>{
+    if(err&&err.name==='NotAllowedError')snack('浏览器阻止了自动播放，请再点一次播放按钮');
+    else snack('播放失败：'+(err&&err.message||err));
+  });
 }
 async function muPlay(idx){
   const m=muState();
@@ -7800,7 +8479,7 @@ async function muPlay(idx){
       try{blob=await muDB.get(item.id)}catch(e){blob=null}
       if(blob){muSetCur(item,URL.createObjectURL(blob));return}
       if(muMem[item.id]){muSetCur(item,muMem[item.id]);return}
-      snack('音频数据缺失');
+      snack('音频数据缺失（本机未持久化，需重新导入）');
     }catch(e){snack('读取本地音频失败')}
     return;
   }
@@ -7907,10 +8586,13 @@ function openMusicMenu(){
     '<div class="mu-menu-item" onclick="closeMuModal(\'muMenuModal\');document.getElementById(\'muCoverFile\').click()"><div class="mm-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="3" width="18" height="18" rx="3"/><circle cx="8.5" cy="8.5" r="1.6"/><path d="M21 15l-5-5L5 21"/></svg></div><span>更换唱片封面</span></div>'+
     '<div class="field" style="margin-top:4px"><label>网易云</label></div>'+
     (net.cookie?'<div class="mu-menu-item danger" onclick="muLogout()"><div class="mm-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div><span>退出网易云登录</span></div>':'<div class="mu-menu-item" onclick="closeMuModal(\'muMenuModal\');muLoginEntry()"><div class="mm-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div><span>登录网易云（扫码 / 手机号）</span></div>')+
-    '<div class="field" style="margin-top:4px"><label>本地代理（可选，解决浏览器跨域）</label>'+
-      '<div class="mu-menu-row"><input id="muProxyUrl" placeholder="本地代理地址，如 http://localhost:3000" value="'+escapeHtml(m.proxy||'')+'"><button class="mu-menu-save" onclick="muSaveProxy()">保存</button></div>'+
-      '<div class="mu-menu-row" style="margin-top:6px;gap:6px"><button class="mu-menu-save" onclick="setMuProxy(\'http://localhost:3000\')">填本地代理(3000)</button><button class="mu-menu-save" onclick="setMuProxy(\'\')">清除代理</button></div>'+
-      '<p class="hint" style="font-size:11px">本机未装 node：在本目录运行 py netease-proxy.py（默认端口 3000），再点“填本地代理(3000)”即可绕过浏览器跨域。注意网易云对 weapi 有反爬风控，登录若取回空白/失败属网易云限制，可改用“导入本地音乐”播放</p>'+
+    '<div class="field" style="margin-top:4px"><label>网易云 API 服务地址</label>'+
+      '<div class="mu-menu-row"><input id="muApiUrl" placeholder="例如 http://localhost:3000" value="'+escapeHtml(net.apiUrl||'')+'"><button class="mu-menu-save" onclick="muSaveApiUrl()">保存</button></div>'+
+      '<p class="hint" style="font-size:11px;line-height:1.7">'+
+        '使用 <b>NeteaseCloudMusicApi</b>（github: Binaryify/NeteaseCloudMusicApi）。<br>'+
+        '本机运行 <code>npx NeteaseCloudMusicApi</code> 默认端口 3000，填 http://localhost:3000 即可。<br>'+
+        '也可部署到公网/Vercel，填对应域名。<b>浏览器无法直接访问 music.163.com</b>，必须走该服务。'+
+      '</p>'+
     '</div>'+
     '<div class="field" style="margin-top:4px"><label>播放列表</label></div>'+
     '<div class="mu-menu-item danger" onclick="muClearQueue()"><div class="mm-ic"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></div><span>清空播放列表</span></div>'+
@@ -7925,27 +8607,24 @@ function closeMuModal(id){
   if(m){m.classList.remove('open');setTimeout(()=>m.remove(),300)}
 }
 function muLogout(){
-  const m=muState();
-  m.netease={cookie:'',uid:0,name:'',avatar:''};
+  const state=mutateNeteaseState();
+  Object.assign(state,{cookie:'',uid:0,name:'',avatar:''});
   save();muRender();
   closeMuModal('muMenuModal');
   snack('已退出网易云登录');
 }
-function muSaveProxy(){
-  const el=$('#muProxyUrl');
+function mutateNeteaseState(){
   const m=muState();
-  m.proxy=el?el.value.trim():'';
-  save();
-  closeMuModal('muMenuModal');
-  snack(m.proxy?'已设置本地代理：'+m.proxy:'已清除本地代理（直连）');
+  if(!m.netease)m.netease={apiUrl:'',cookie:'',uid:0,name:'',avatar:''};
+  return m.netease;
 }
-/* 向指定值填充代理（供"填本地代理/清除"等按钮用） */
-function setMuProxy(v){
-  const m=muState();
-  m.proxy=v||'';
+function muSaveApiUrl(){
+  const el=$('#muApiUrl');
+  const v=(el?el.value.trim():'').replace(/\/+$/,'');
+  mutateNeteaseState().apiUrl=v;
   save();
   closeMuModal('muMenuModal');
-  snack(v?'已设置代理':'已清除代理（直连）');
+  snack(v?'已保存网易云 API 服务地址':'已清空服务地址');
 }
 function muClearQueue(){
   const m=muState();
@@ -7956,95 +8635,37 @@ function muClearQueue(){
   closeMuModal('muMenuModal');
   snack('播放列表已清空');
 }
-/* ===== 网易云 Weapi 加密（与网易云 Web 端同款）===== */
-/* 说明：AES-CBC 双层加密 + RSA 加密 secKey；请求头带 NeteaseMusic UA 与 Referer，否则会被拒。
-   注意：跨域场景下浏览器会拦截 music.163.com 响应（CORS），若失败会提示需要本地代理或改用本地导入。 */
-const MU_FIXED_KEY='0CoJUm6Qyw8W8jud';
-const MU_IV_HEX='0102030405060708';
-const MU_PUB_MOD='00e0b509f6259df8642dbc35662901477df22677ec152b5ff68ace615bb7b725152b3ab17a876aea8a5aa76d2e417629ec4ee341f56135fccf695280104e0312ecbda92557c93870114af6c9d05c4f7f0c3685b7a46bee255932575cce10b424d813cfe4875d3e82047b97ddef52741d546b8e289dc6935b3ece0462db0a22b8e7';
-const MU_PUB_EXP='010001';
-const MU_UA='Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36 NeteaseMusic';
-function muRandomStr(n){const c='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';let s='';for(let i=0;i<n;i++)s+=c[Math.floor(Math.random()*c.length)];return s}
-function muHexBytes(hex){const a=new Uint8Array(hex.length/2);for(let i=0;i<a.length;i++)a[i]=parseInt(hex.slice(i*2,i*2+2),16);return a}
-function muBytesHex(b){return Array.from(b).map(x=>x.toString(16).padStart(2,'0')).join('')}
-/* AES-CBC 加密（WebCrypto，PKCS7 填充与 Node 一致；IV 为字符串 '0102030405060708' 的 ASCII 字节，共 16 字节） */
-async function muAesEncrypt(text,keyStr){
-  const enc=new TextEncoder();
-  const key=await crypto.subtle.importKey('raw',enc.encode(keyStr),{name:'AES-CBC'},false,['encrypt']);
-  const out=await crypto.subtle.encrypt({name:'AES-CBC',iv:enc.encode(MU_IV_HEX)},key,enc.encode(text));
-  return muBytesHex(new Uint8Array(out));
-}
-/* RSA 加密（PKCS1 v1.5 填充 + BigInt 模幂，与 NeteaseCloudMusicApi 一致） */
-function muRsaEncrypt(text){
-  const n=BigInt('0x'+MU_PUB_MOD);
-  const e=BigInt('0x'+MU_PUB_EXP);
-  const modLen=MU_PUB_MOD.length/2;
-  const msg=new TextEncoder().encode(text.split('').reverse().join(''));
-  const psLen=modLen-3-msg.length;
-  if(psLen<8)return '';
-  const ps=new Uint8Array(psLen);
-  for(let i=0;i<psLen;i++)ps[i]=1+Math.floor(Math.random()*255);
-  const block=new Uint8Array(modLen);
-  block[0]=0;block[1]=2;
-  block.set(ps,2);
-  block[2+psLen]=0;
-  block.set(msg,3+psLen);
-  let m=BigInt('0x'+muBytesHex(block));
-  let r=1n,b=m%n,ex=e;
-  while(ex>0n){if(ex&1n)r=(r*b)%n;b=(b*b)%n;ex>>=1n}
-  let hex=r.toString(16);
-  if(hex.length%2)hex='0'+hex;
-  while(hex.length<modLen*2)hex='0'+hex;
-  return hex;
-}
-async function muWeapiEncrypt(obj){
-  const sec=muRandomStr(16);
-  const params=await muAesEncrypt(await muAesEncrypt(JSON.stringify(obj),sec),MU_FIXED_KEY);
-  return {params,encSecKey:muRsaEncrypt(sec)};
-}
-/* 网易云接口调用：
-   - 本地代理（推荐）：在 音乐→本地代理 填入地址（如 http://localhost:3000，用 node netease-proxy.js 启动），
-     则把 weapi 加密请求转发给本机代理，由代理转发到 music.163.com，绕开浏览器 CORS。
-   - 直连：music.163.com 的 /weapi（weapi 加密 form）。仅当页面运行在可直连网易云的非跨域环境时可用。 */
-async function muWeapi(url,obj,cookie,os){
-  const m=muState();
-  const proxy=(m&&m.proxy)?m.proxy.replace(/\/+$/,''):'';
-  /* weapi 统一走加密 form；三种出口：
-     1) 代理含 {url} -> 公网 CORS 转发模板（免服务器）
-     2) 代理为普通地址 -> 本地透明代理（如 node netease-proxy.js 或 py netease-proxy.py）
-     3) 无代理 -> 直连 music.163.com（通常被 CORS 拦截） */
-  const csrf=(cookie||'').match(/__csrf=([^;]+)/);
-  const c=csrf?csrf[1]:'';
-  const enc=await muWeapiEncrypt(obj);
-  const formBody=new URLSearchParams({params:enc.params,encSecKey:enc.encSecKey}).toString();
-  const ts=Date.now();
-  const sep=url.indexOf('?')>=0?'&':'?';
-  const path=url+sep+'timestamp='+ts+(c?'&csrf_token='+c:'');
-  let fetchUrl;
-  if(proxy.indexOf('{url}')>=0){
-    fetchUrl=proxy.replace('{url}',encodeURIComponent('https://music.163.com/weapi/'+path));
-  }else if(proxy){
-    fetchUrl=proxy+'/weapi/'+path;
-  }else{
-    fetchUrl='https://music.163.com/weapi/'+path;
+/* ===== 网易云：统一走 NeteaseCloudMusicApi 标准接口（前端不做 weapi 加密） =====
+   NeteaseCloudMusicApi 是业界通用的网易云代理服务（github: Binaryify/NeteaseCloudMusicApi）。
+   跨域与 Cookie 都由服务端处理，前端只需普通 HTTP GET，在 query 里携带 cookie 承接登录态。 */
+async function neteaseApi(path, params, opts){
+  const cfg=(data.music&&data.music.netease)||{};
+  const base=(cfg.apiUrl||'').replace(/\/+$/,'');
+  if(!base)throw new Error('尚未配置网易云 API 服务地址');
+  const q=new URLSearchParams();
+  if(params)for(const k in params)if(params[k]!=null)q.set(k,params[k]);
+  if(cfg.cookie&&!q.has('cookie'))q.set('cookie',cfg.cookie);
+  q.set('timestamp',Date.now());          /* 防止 CDN 缓存 */
+  const url=base+path+'?'+q.toString();
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),(opts&&opts.timeout)||15000);
+  try{
+    const res=await fetch(url,{method:'GET',signal:ctrl.signal,credentials:'omit'});
+    if(!res.ok)throw new Error('HTTP '+res.status);
+    return await res.json();
+  }finally{
+    clearTimeout(timer);
   }
-  const resp=await fetch(fetchUrl,{
-    method:'POST',
-    headers:{
-      'User-Agent':MU_UA,
-      'Referer':'https://music.163.com/',
-      'Content-Type':'application/x-www-form-urlencoded',
-      'os':os||'pc',
-      ...(cookie?{Cookie:cookie}:{})
-    },
-    body:formBody
-  });
-  if(!resp.ok)throw new Error('HTTP '+resp.status);
-  return resp.json();
 }
 /* 网易云登录：扫码 / 手机号 */
 let muQrTimer=null;
 function muLoginEntry(){
+  /* 未配置服务地址时提示并引导去音乐菜单填写（不进入登录） */
+  if(!(data.music.netease&&data.music.netease.apiUrl)){
+    snack('请先在音乐菜单里填写网易云 API 服务地址');
+    openMusicMenu();
+    return;
+  }
   const overlay=document.createElement('div');overlay.className='modal-mask';overlay.id='muLoginModal';
   overlay.innerHTML='<div class="modal-card" style="max-width:320px" onclick="event.stopPropagation()">'+
     '<div class="modal-head"><h3>网易云登录</h3><button class="close-btn" onclick="muCloseLogin()">✕</button></div>'+
@@ -8088,15 +8709,8 @@ async function muSendCaptcha(btn){
   const st=$('#muQrStatus');
   if(st){st.textContent='正在发送验证码…';st.classList.remove('ok')}
   try{
-    const r=await muWeapi('sms/captcha/sent',{ctcode:cc?cc.value:'86',cellphone:p,captcha:''},'','pc');
-    if(r.code!==200){
-      let msg=r.message||'发送失败';
-      const tips={'400':'发送失败，请检查手机号','408':'操作过于频繁，请稍后再试','451':'手机号格式错误'};
-      if(tips[r.code])msg=tips[r.code];
-      if(st){st.textContent=msg;st.classList.remove('ok')}
-      snack(msg);
-      return;
-    }
+    const r=await neteaseApi('/captcha/sent',{phone:p,ctcode:cc?cc.value:'86'});
+    if(r.code!==200)throw new Error(r.message||('code '+r.code));
     if(st){st.textContent='验证码已发送，请注意查收';st.classList.add('ok')}
     snack('验证码已发送');
     if(!btn)return;
@@ -8113,7 +8727,7 @@ async function muSendCaptcha(btn){
     snack('发送验证码失败');
   }
 }
-function muPhoneLogin(){
+async function muPhoneLogin(){
   const phone=$('#muPhone'),code=$('#muPhoneCode'),cc=$('#muPhoneCc');
   const p=phone?phone.value.trim():'';
   const c=code?code.value.trim():'';
@@ -8123,7 +8737,7 @@ function muPhoneLogin(){
   if(st){st.textContent='正在登录…';st.classList.remove('ok')}
   (async()=>{
     try{
-      const r=await muWeapi('login/cellphone',{phone:p,countrycode:cc?cc.value:'86',captcha:c,rememberLogin:'true'},'','pc');
+      const r=await neteaseApi('/login/cellphone',{phone:p,captcha:c,countrycode:cc?cc.value:'86'});
       if(r.code!==200){
         let msg=r.message||'登录失败';
         if(r.code===501)msg='验证码错误';
@@ -8132,61 +8746,17 @@ function muPhoneLogin(){
         if(st){st.textContent=msg;st.classList.remove('ok')}
         return;
       }
-      const cookie=(r.cookie||'').trim();
-      if(!cookie){if(st){st.textContent='未获取到登录凭据';st.classList.remove('ok')}return}
-      const m=muState();
-      m.netease=m.netease||{};
-      m.netease.cookie=cookie;
-      m.netease.name=(r.profile&&r.profile.nickname)||'';
+      const state=muState().netease;
+      state.cookie=(r.cookie||'').trim();
+      if(r.profile){state.uid=r.profile.userId||0;state.name=r.profile.nickname||'';state.avatar=r.profile.avatarUrl||'';}
       save();muRender();
       if(st){st.textContent='登录成功';st.classList.add('ok')}
       setTimeout(()=>muCloseLogin(),600);
-      snack('网易云登录成功'+(m.netease.name?'：'+m.netease.name:''));
+      snack('网易云登录成功'+(state.name?'：'+state.name:''));
     }catch(e){
       if(st){st.textContent='登录失败：'+(friendlyError?friendlyError(e):e.message);st.classList.remove('ok')}
     }
   })();
-}
-/* MD5（手机号登录密码加密用，浏览器不支持 WebCrypto MD5）。
-   经标准测试向量验证：''->d41d8cd9…，'abc'->90015098…，'青柠123'->c7b8d1ef… */
-function muMd5(str){
-  function safeAdd(x,y){var lsw=(x&0xFFFF)+(y&0xFFFF);return ((x>>16)+(y>>16)+(lsw>>16))<<16|lsw&0xFFFF}
-  function rot(num,cnt){return (num<<cnt)|(num>>>(32-cnt))}
-  function cmn(q,a,b,x,s,t){return safeAdd(rot(safeAdd(safeAdd(a,q),safeAdd(x,t)),s),b)}
-  function ff(a,b,c,d,x,s,t){return cmn((b&c)|(~b&d),a,b,x,s,t)}
-  function gg(a,b,c,d,x,s,t){return cmn((b&d)|(c&~d),a,b,x,s,t)}
-  function hh(a,b,c,d,x,s,t){return cmn(b^c^d,a,b,x,s,t)}
-  function ii(a,b,c,d,x,s,t){return cmn(c^(b|~d),a,b,x,s,t)}
-  function core(x,len){
-    x[len>>5]|=0x80<<(len%32);
-    x[((len+64)>>>9<<4)+14]=len;
-    var i,oa,ob,oc,od,a=1732584193,b=-271733879,c=-1732584194,d=271733878;
-    for(i=0;i<x.length;i+=16){
-      oa=a;ob=b;oc=c;od=d;
-      a=ff(a,b,c,d,x[i],7,-680876936);d=ff(d,a,b,c,x[i+1],12,-389564586);c=ff(c,d,a,b,x[i+2],17,606105819);b=ff(b,c,d,a,x[i+3],22,-1044525330);
-      a=ff(a,b,c,d,x[i+4],7,-176418897);d=ff(d,a,b,c,x[i+5],12,1200080426);c=ff(c,d,a,b,x[i+6],17,-1473231341);b=ff(b,c,d,a,x[i+7],22,-45705983);
-      a=ff(a,b,c,d,x[i+8],7,1770035416);d=ff(d,a,b,c,x[i+9],12,-1958414417);c=ff(c,d,a,b,x[i+10],17,-42063);b=ff(b,c,d,a,x[i+11],22,-1990404162);
-      a=ff(a,b,c,d,x[i+12],7,1804603682);d=ff(d,a,b,c,x[i+13],12,-40341101);c=ff(c,d,a,b,x[i+14],17,-1502002290);b=ff(b,c,d,a,x[i+15],22,1236535329);
-      a=gg(a,b,c,d,x[i+1],5,-165796510);d=gg(d,a,b,c,x[i+6],9,-1069501632);c=gg(c,d,a,b,x[i+11],14,643717713);b=gg(b,c,d,a,x[i],20,-373897302);
-      a=gg(a,b,c,d,x[i+5],5,-701558691);d=gg(d,a,b,c,x[i+10],9,38016083);c=gg(c,d,a,b,x[i+15],14,-660478335);b=gg(b,c,d,a,x[i+4],20,-405537848);
-      a=gg(a,b,c,d,x[i+9],5,568446438);d=gg(d,a,b,c,x[i+14],9,-1019803690);c=gg(c,d,a,b,x[i+3],14,-187363961);b=gg(b,c,d,a,x[i+8],20,1163531501);
-      a=gg(a,b,c,d,x[i+13],5,-1444681467);d=gg(d,a,b,c,x[i+2],9,-51403784);c=gg(c,d,a,b,x[i+7],14,1735328473);b=gg(b,c,d,a,x[i+12],20,-1926607734);
-      a=hh(a,b,c,d,x[i+5],4,-378558);d=hh(d,a,b,c,x[i+8],11,-2022574463);c=hh(c,d,a,b,x[i+11],16,1839030562);b=hh(b,c,d,a,x[i+14],23,-35309556);
-      a=hh(a,b,c,d,x[i+1],4,-1530992060);d=hh(d,a,b,c,x[i+4],11,1272893353);c=hh(c,d,a,b,x[i+7],16,-155497632);b=hh(b,c,d,a,x[i+10],23,-1094730640);
-      a=hh(a,b,c,d,x[i+13],4,681279174);d=hh(d,a,b,c,x[i],11,-358537222);c=hh(c,d,a,b,x[i+3],16,-722521979);b=hh(b,c,d,a,x[i+6],23,76029189);
-      a=hh(a,b,c,d,x[i+9],4,-640364487);d=hh(d,a,b,c,x[i+12],11,-421815835);c=hh(c,d,a,b,x[i+15],16,530742520);b=hh(b,c,d,a,x[i+2],23,-995338651);
-      a=ii(a,b,c,d,x[i],6,-198630844);d=ii(d,a,b,c,x[i+7],10,1126891415);c=ii(c,d,a,b,x[i+14],15,-1416354905);b=ii(b,c,d,a,x[i+5],21,-57434055);
-      a=ii(a,b,c,d,x[i+12],6,1700485571);d=ii(d,a,b,c,x[i+3],10,-1894986606);c=ii(c,d,a,b,x[i+10],15,-1051523);b=ii(b,c,d,a,x[i+1],21,-2054922799);
-      a=ii(a,b,c,d,x[i+8],6,1873313359);d=ii(d,a,b,c,x[i+15],10,-30611744);c=ii(c,d,a,b,x[i+6],15,-1560198380);b=ii(b,c,d,a,x[i+13],21,1309151649);
-      a=ii(a,b,c,d,x[i+4],6,-145523070);d=ii(d,a,b,c,x[i+11],10,-1120210379);c=ii(c,d,a,b,x[i+2],15,718787259);b=ii(b,c,d,a,x[i+9],21,-343485551);
-      a=safeAdd(a,oa);b=safeAdd(b,ob);c=safeAdd(c,oc);d=safeAdd(d,od);
-    }
-    return [a,b,c,d];
-  }
-  function str2binl(s){var out=[];for(var i=0;i<s.length*8;i+=8)out[i>>5]|=(s.charCodeAt(i/8)&0xFF)<<(i%32);return out}
-  function tohex(a){var b=[];for(var i=0;i<a.length*4;i++)b.push((a[i>>2]>>((i%4)*8+4))&0xF,(a[i>>2]>>((i%4)*8))&0xF);return b.map(function(n){return n.toString(16)}).join('')}
-  var u=unescape(encodeURIComponent(str));
-  return tohex(core(str2binl(u),u.length*8));
 }
 function muCloseLogin(){
   clearInterval(muQrTimer);muQrTimer=null;
@@ -8195,53 +8765,59 @@ function muCloseLogin(){
 }
 async function muQrStart(){
   clearInterval(muQrTimer);muQrTimer=null;
-  let key=null,lastCode=0;
+  const box=$('#muQrBox'),st=$('#muQrStatus');
+  if(box)box.innerHTML='<div class="qr-hint">正在获取二维码…</div>';
+  let key=null;
   try{
-    const r=await muWeapi('login/qr/create',{type:1},'');
-    key=r.data&&r.data.key;
-    const box=$('#muQrBox');
-    if(!key||!r.data.qrimg){if(box)box.innerHTML='<div class="qr-hint">二维码获取失败</div>';return}
-    box.innerHTML='<img src="'+r.data.qrimg+'" alt="二维码">';
+    const k=await neteaseApi('/login/qr/key');
+    key=k.data&&k.data.unikey;
+    if(!key)throw new Error('未取到 QR key');
+    const q=await neteaseApi('/login/qr/create',{key,qrimg:true});
+    const qrimg=q.data&&q.data.qrimg;
+    if(!qrimg)throw new Error('未取到二维码图片');
+    if(box)box.innerHTML='<img src="'+qrimg+'" alt="二维码">';
   }catch(e){
-    const box=$('#muQrBox');
     if(box)box.innerHTML='<div class="qr-hint">获取二维码失败<br>'+escapeHtml(friendlyError(e))+'</div>';
-    const st=$('#muQrStatus');if(st)st.textContent='如被浏览器跨域拦截，请改用本地音乐导入';
+    if(st)st.textContent='请先到音乐菜单填写正确的服务地址';
     return;
   }
   muQrTimer=setInterval(async()=>{
     if(!key){clearInterval(muQrTimer);return}
     try{
-      const chk=await muWeapi('login/qr/check',{key,type:1},'');
+      const c=await neteaseApi('/login/qr/check',{key});
       const st=$('#muQrStatus');
       if(!st)return;
-      if(chk.code===801){st.textContent='请使用网易云 App 扫码';st.classList.remove('ok')}
-      else if(chk.code===802){st.textContent='已扫码，请在手机上确认登录';st.classList.add('ok')}
-      else if(chk.code===803){
+      if(c.code===801){st.textContent='请使用网易云 App 扫码';st.classList.remove('ok')}
+      else if(c.code===802){st.textContent='已扫码，请在手机上确认登录';st.classList.add('ok')}
+      else if(c.code===800){clearInterval(muQrTimer);muQrTimer=null;st.textContent='二维码已过期，请重新打开登录';st.classList.remove('ok')}
+      else if(c.code===803){
         clearInterval(muQrTimer);muQrTimer=null;
-        st.textContent='登录成功';st.classList.add('ok');
-        const cookie=(chk.cookie||'').trim();
-        if(!cookie){st.textContent='未获取到登录凭据';return}
-        const m=muState();
-        m.netease=m.netease||{};
-        m.netease.cookie=cookie;
-        m.netease.name=(chk.nickname||'').trim();
-        save();muRender();
-        setTimeout(()=>muCloseLogin(),600);
-        snack('网易云登录成功'+(m.netease.name?'：'+m.netease.name:''));
-      }else if(chk.code===800){
-        clearInterval(muQrTimer);muQrTimer=null;
-        st.textContent='二维码已失效，请重新打开登录';st.classList.remove('ok');
+        const cookie=(c.cookie||'').trim();
+        const state=muState().netease;
+        state.cookie=cookie;
+        try{
+          const s=await neteaseApi('/login/status');
+          const p=s&&s.data&&s.data.profile;
+          if(p){state.uid=p.userId||0;state.name=p.nickname||'';state.avatar=p.avatarUrl||'';}
+        }catch(e){}
+        save();muRender();muCloseLogin();
+        snack('网易云登录成功'+(state.name?'：'+state.name:''));
       }
     }catch(e){
       const st=$('#muQrStatus');
       if(st)st.textContent='轮询失败：'+friendlyError(e);
     }
-  },3000);
+  },2500);
 }
 /* 网易云搜索 */
 function muNetSearch(){
-  const net=muState().netease||{};
-  if(!net.cookie){snack('请先扫码登录网易云');muLoginEntry();return}
+  /* 未配置服务地址时提示并引导去音乐菜单填写 */
+  if(!(data.music.netease&&data.music.netease.apiUrl)){
+    snack('请先在音乐菜单里填写网易云 API 服务地址');
+    openMusicMenu();
+    return;
+  }
+  const bottomVal=$('#muSearch')?$('#muSearch').value.trim():'';
   const overlay=document.createElement('div');overlay.className='modal-mask';overlay.id='muSearchModal';
   overlay.innerHTML='<div class="modal-card" style="max-width:340px" onclick="event.stopPropagation()">'+
     '<div class="modal-head"><h3>网易云搜索</h3><button class="close-btn" onclick="closeMuModal(\'muSearchModal\')">✕</button></div>'+
@@ -8250,22 +8826,23 @@ function muNetSearch(){
   '</div>';
   document.body.appendChild(overlay);
   setTimeout(()=>overlay.classList.add('open'),10);
-  overlay.addEventListener('click',function(e){if(e.target===this)this.remove()});
+  overlay.addEventListener('click',function(e){if(e.target===this)closeMuModal('muSearchModal')});
   const kw=$('#muNetKw');
   if(kw){
+    if(bottomVal)kw.value=bottomVal;
     kw.focus();
     kw.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();muNetSearchGo()}});
   }
+  if(bottomVal)muNetSearchGo();
 }
 async function muNetSearchGo(){
   const kw=$('#muNetKw'),list=$('#muNetList');
   const q=kw?kw.value.trim():'';
   if(!q){snack('请输入搜索关键词');return}
   if(list)list.innerHTML='<div class="mu-net-status">搜索中…</div>';
-  const net=muState().netease||{};
   try{
-    const res=await muWeapi('cloudsearch/get/web',{s:q,type:1,limit:30,offset:0},net.cookie);
-    const songs=(res.result&&res.result.songs)||[];
+    const r=await neteaseApi('/cloudsearch',{keywords:q,limit:30});
+    const songs=(r.result&&r.result.songs)||[];
     if(!list)return;
     if(!songs.length){list.innerHTML='<div class="mu-net-status">没有找到相关歌曲</div>';return}
     list.innerHTML=songs.map(s=>{
@@ -8278,24 +8855,24 @@ async function muNetSearchGo(){
       '</div>';
     }).join('');
   }catch(e){
-    if(list)list.innerHTML='<div class="mu-net-status">搜索失败：'+escapeHtml(friendlyError(e))+'<br>如被跨域拦截请使用本地导入</div>';
+    if(list)list.innerHTML='<div class="mu-net-status">搜索失败：'+escapeHtml(friendlyError(e))+'</div>';
   }
 }
 async function muNetAdd(id){
-  const net=muState().netease||{};
   const m=muState();
   try{
-    const ur=await muWeapi('song/enhance/player/url/v1',{ids:'['+id+']',level:'standard',encodeType:'aac'},net.cookie);
-    const u=(ur.data&&ur.data[0]&&ur.data[0].url);
-    if(!u)throw new Error('该歌曲无可用播放地址（VIP/下架）');
-    const detail=(ur.data&&ur.data[0])||{};
-    const item={id:'net_'+id,name:detail.name||'歌曲'+id,artist:(detail.ar||[]).map(a=>a.name).join('/')||'网易云',src:'net',cover:detail.al&&detail.al.picUrl||null,url:u};
+    const ur=await neteaseApi('/song/url/v1',{id,level:'exhigh'});
+    const u=ur&&ur.data&&ur.data[0]&&ur.data[0].url;
+    if(!u)throw new Error('该歌曲无可用播放地址（可能为 VIP 或已下架）');
+    const dt=await neteaseApi('/song/detail',{ids:id});
+    const first=(dt.songs&&dt.songs[0])||{};
+    const item={id:'net_'+id,name:first.name||('歌曲'+id),artist:(first.ar||[]).map(a=>a.name).join('/')||'网易云',src:'net',cover:(first.al&&first.al.picUrl)||null,url:u};
     m.queue.push(item);
     if(m.current<0)m.current=0;
     save();
     closeMuModal('muSearchModal');
     muRender();
-    muPlay(m.current<0?m.queue.length-1:m.current);
+    muPlay(m.queue.length-1);
     snack('已添加：'+(item.name||''));
   }catch(e){
     snack('添加失败：'+friendlyError(e));
@@ -8703,7 +9280,7 @@ async function monGenAll(){
   '- 电话：生成 7~10 条通话记录'+(userOn?'，其中 1 条必须是"用户"（role:"me"），用户的名字用你给用户设的微信备注名、头像对应绑定人设；其余为 NPC 呼入/呼出，可含未接来电。':'，全部为 NPC 呼入/呼出（含未接来电），不要生成任何与"用户/我"的通话记录。')+'\n'+
   '- 短信：生成 4~6 条近期收到的短信'+(userOn?'，其中 1 条来自用户（role:"me"，名字与微信备注一致）；内容像真实短信（验证码、快递、营业厅、朋友闲聊等）。':'，内容像真实短信（验证码、快递、营业厅、朋友闲聊等），但不要生成任何来自"用户/我"的短信。')+'\n'+
   '- 音乐：生成 3~6 条最近听的歌，歌名+歌手+封面，贴合角色喜好。\n'+
-  '- 微信：你的微信置顶会话里固定有"用户"（我）这个联系人，头像用绑定人设，备注名要符合你的人设，但不要生成任何与"用户/我"的聊天消息。"me"的 messages 保持为空数组。另外生成 3~5 个与角色聊天的 NPC 聊天记录，NPC 可以是其它智能体或人设中的人物。\n'+
+  '- 微信：你的微信置顶会话里固定有"用户"（我）这个联系人，头像用绑定人设，备注名要符合你的人设，但不要生成任何与"用户/我"的聊天消息。"me"的 messages 保持为空数组。另外生成 3~5 个与角色聊天的 NPC 聊天记录，NPC 可以是其它智能体或人设中的人物。整体会话列表保底能看到 4~6 人（包含固定联系人"用户"），NPC 随机在 3~5 个之间波动，保证总数不少于 4 人。\n'+
   '- 浏览器：按角色喜好生成 7~10 条搜索记录。\n'+
   '- 抖音：按角色喜好生成 6 条视频浏览内容，每条用文字描述视频内容。\n'+
   '- 便签：3 条，如未来计划、今天用户做了什么、用户喜好、你想对用户说的话。\n'+
@@ -8883,19 +9460,17 @@ async function genImageCall(preset,prompt,negative,size){
       ?{prompt:fullPrompt,image_size:sizeMap.trae}
       :{model:preset.model||'',prompt:fullPrompt,n:1,size:sizeMap.openai};
     try{
-      const ctrl=new AbortController();
-      const timer=setTimeout(()=>ctrl.abort(),90000);
-      let res;
-      try{
-        res=await fetch(u,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+preset.key},body:JSON.stringify(body),signal:ctrl.signal});
-      }finally{clearTimeout(timer)}
-      if(!res.ok){const t=await res.text();lastErr=new Error('HTTP '+res.status+': '+t.slice(0,160));continue}
-      const d=await res.json();
+      const d=await relayFetch(u,'',{
+        method:'POST',
+        headers:{'Content-Type':'application/json',Authorization:'Bearer '+preset.key},
+        body:JSON.stringify(body),
+        corsProxy:((activePreset()||{}).corsProxy)||''
+      });
       const first=(d&&d.data&&d.data[0])||{};
       const b64=first.b64_json||first.b64||(d.output&&d.output[0]&&d.output[0].b64_json)||(d.images&&d.images[0]);
-      const url=first.url||(d.output&&d.output[0]&&d.output[0].url)||d.image||d.url;
+      const imgUrl=first.url||(d.output&&d.output[0]&&d.output[0].url)||d.image||d.url;
       if(typeof b64==='string'&&b64.length>20)return {dataUrl:b64.indexOf('data:')===0?b64:'data:image/png;base64,'+b64};
-      if(url)return {url};
+      if(imgUrl)return {url:imgUrl};
       lastErr=new Error('接口通了，但没返回图片');
     }catch(e){lastErr=e}
   }
@@ -9163,9 +9738,7 @@ async function fetchGenModels(){
   const base=normalizeUrl(url);
   let list=[];
   try{
-    const res=await fetch(base+'/models',{method:'GET',headers:key?{Authorization:'Bearer '+key}:{}});
-    if(!res.ok){snack('拉取失败 HTTP '+res.status);return}
-    const d=await res.json();
+    const d=await relayFetch(base,'/models',{headers:key?{Authorization:'Bearer '+key}:{},corsProxy:((activePreset()||{}).corsProxy)||''});
     if(d&&d.data&&Array.isArray(d.data))list=d.data.map(x=>(typeof x==='string'?x:x.id)).filter(Boolean);
     else if(d&&d.models&&Array.isArray(d.models))list=d.models.map(x=>(typeof x==='string'?x:x.id)).filter(Boolean);
   }catch(e){snack('拉取失败：'+friendlyError(e));return}
