@@ -334,6 +334,16 @@ body{
 .input-bar textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:20px;padding:10px 14px;font-size:14.5px;background:var(--field-bg);color:var(--ink);outline:none;min-height:40px;max-height:120px;line-height:1.5}
 .input-bar textarea:focus{border-color:var(--main-deep)}
 .send-btn{width:42px;height:42px;border-radius:50%;background:linear-gradient(140deg,#c9e7da,#7bb8a7);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px -8px rgba(123,184,167,.65);flex-shrink:0}
+/* 移动端点按灵敏：取消双击缩放延迟，点击立即触发，避免“偶尔点不动” */
+button,.seg-opt,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.input-bar,.input-bar *{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* 手机端加大输入栏图标与发送键的点击热区，改善“卡手” */
+@media (max-width:520px){
+  .input-bar{gap:7px}
+  .input-bar .hbtn{width:40px;height:40px}
+  .send-btn{width:46px;height:46px}
+  .input-bar textarea{min-height:42px;font-size:15px}
+}
 /* 手机端隐藏所有滚动条 */
 *{scrollbar-width:none;-ms-overflow-style:none}
 *::-webkit-scrollbar{width:0;height:0;display:none}
@@ -1492,7 +1502,7 @@ body{
       <button class="mb-btn" onclick="exitMultiMode()">取消</button>
     </div>
   </div>
-  <div class="input-bar" id="inputBar" onmousedown="openChatInput(event)">
+  <div class="input-bar" id="inputBar" onpointerdown="openChatInput(event)">
     <div class="pop-wrap">
       <button class="hbtn jelly-btn" title="更多功能" onclick="toggleChatMore()"><svg class="ic" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
       <div class="popover more-pop" id="chatMore">
@@ -4191,25 +4201,33 @@ async function runAvatarDecision(agent,m){
   /* 压缩后再识图与保存为头像，避免超大 base64 撑爆 localStorage（导致头像掉落/更换不生效） */
   const cmpr=await compressDataUrl(imgDir,512,.82);
   const img=cmpr||imgDir;
-  const desc=img?await visionDescribeImage(img):'';
   const persona=(agent.persona||'').trim();
   const sys=persona?('你现在代入以下角色，用这个身份自然回应。\n\n'+persona):('你正在扮演「'+displayName(agent)+'」，请自然回应。');
-  let userPrompt;
-  if(desc){
-    userPrompt='用户刚发来一张图片，想让你把它作为你的新头像。你识别到这张图的大致内容是：「'+desc+'」。请用你的角色身份自然地说一句话评价这张图（表达喜欢与否、合不合适都行，语气要真实、像日常聊天），然后决定换不换。';
-  }else{
-    userPrompt='用户刚发来一张图片，想让你把它作为你的新头像。你现在看不清图片具体内容，但可以根据你们最近的聊天情境和关系，用你的角色身份自然地说一句回应（语气真实），再决定换不换（你有权拒绝）。';
-  }
-  userPrompt+='\n\n请严格按下面两行格式输出，不要输出其它多余内容：\n评价：你的那句话（自然、像真人聊天，一到两句话）\n决定：换 或 不换';
   let reply='';
-  try{
-    reply=await sendChat(getAgentConfig(agent),[{role:'system',content:sys},{role:'user',content:userPrompt}]);
-  }catch(e){
-    /* 决策接口失败也不打断聊天：以角色口吻留一条兜底回复，并保留头像请求供下次触发 */
-    const fb='（我收到你发的这张图了，不过这会儿有点迷糊，等会儿再仔细看看换不换哈。）';
-    pushMsg(agent.id,'ai',fb,null,nextChatRound(agent.id));
-    save();renderMessages();
-    return;
+  /* 优先用识图 API「直接看图生成评价+决定」，不再叠加主 API；未配置/失败则回退旧流程 */
+  if(img){
+    const vir=await visionChatReply({model:(activePreset()||{}).model,system:sys,corsProxy:((activePreset()||{}).corsProxy)||''},[img],
+      '用户刚给你发来一张图片，想让你把它作为你的新头像。请看着这张图，用你的角色身份评价它（表达喜欢与否、合不合适都行，语气真实、像日常聊天），然后决定换不换（你有权拒绝）。\n\n请严格按下面两行格式输出，不要输出其它多余内容：\n评价：你评价的那句话（一到两句话）\n决定：换 或 不换');
+    if(vir)reply=vir;
+  }
+  if(!reply){
+    const desc=img?await visionDescribeImage(img):'';
+    let userPrompt;
+    if(desc){
+      userPrompt='用户刚发来一张图片，想让你把它作为你的新头像。你识别到这张图的大致内容是：「'+desc+'」。请用你的角色身份自然地说一句话评价这张图（表达喜欢与否、合不合适都行，语气要真实、像日常聊天），然后决定换不换。';
+    }else{
+      userPrompt='用户刚发来一张图片，想让你把它作为你的新头像。你现在看不清图片具体内容，但可以根据你们最近的聊天情境和关系，用你的角色身份自然地说一句回应（语气真实），再决定换不换（你有权拒绝）。';
+    }
+    userPrompt+='\n\n请严格按下面两行格式输出，不要输出其它多余内容：\n评价：你的那句话（自然、像真人聊天，一到两句话）\n决定：换 或 不换';
+    try{
+      reply=await sendChat(getAgentConfig(agent),[{role:'system',content:sys},{role:'user',content:userPrompt}]);
+    }catch(e){
+      /* 决策接口失败也不打断聊天：以角色口吻留一条兜底回复，并保留头像请求供下次触发 */
+      const fb='（我收到你发的这张图了，不过这会儿有点迷糊，等会儿再仔细看看换不换哈。）';
+      pushMsg(agent.id,'ai',fb,null,nextChatRound(agent.id));
+      save();renderMessages();
+      return;
+    }
   }
   const r=parseAvatarDecision(reply||'');
   let comment=r.comment||(r.change?'这张还挺合我心意的，就换它当新头像啦。':'这张我暂时不太来电，先不换啦，心意我领了。');
@@ -4235,12 +4253,30 @@ async function requestReplyFor(agent){
     if(agent.blocked){await handleBlockedReply(agent);checkAutoSummary(agent.id);return}
     const pending=pendingAvatarPhoto(agent);
     if(pending){await runAvatarDecision(agent,pending);checkAutoSummary(agent.id);return}
-    /* 相机发的本地图片：点击发送键时对所有待识别的图片【并发】调用识图 API（同时识别，内容补全进上下文） */
-    const imgMsgs=(data.chats[agent.id]||[]).filter(m=>m.type==='photo'&&m.img&&!m.visionDescribed);
-    await Promise.all(imgMsgs.map(m=>{
-      m.visionDescribed=true;
-      return visionDescribeImage(m.img).then(d=>{if(d)m.visionDesc=d});
-    }));
+    /* 相机发的本地图片：优先用识图 API【直接看图生成整段回复】，不再同时叠主 API（避免两侧各答一遍、识图反而失效）。
+       仅当用户最新一条消息正好是未识别的图片时才走识图直答；若最新是文字则照常由主 API 回答。 */
+    const chatArr=data.chats[agent.id]||[];
+    const lastMsg=chatArr[chatArr.length-1];
+    const isPhotoSend=lastMsg&&lastMsg.role==='user'&&lastMsg.type==='photo'&&lastMsg.img&&!lastMsg.visionDescribed;
+    if(isPhotoSend){
+      const imgMsgs=chatArr.filter(m=>m.role==='user'&&m.type==='photo'&&m.img&&!m.visionDescribed);
+      const persona=(agent.persona||'').trim();
+      const visSys=persona?('你现在代入以下角色，用这个身份自然回应。\n\n'+persona):('你正在扮演「'+displayName(agent)+'」，请自然回应。');
+      let vir=null;
+      try{
+        vir=await visionChatReply({model:(activePreset()||{}).model,system:visSys,corsProxy:((activePreset()||{}).corsProxy)||''},imgMsgs.map(m=>m.img),
+          '用户刚给你发来一张图片'+(imgMsgs.length>1?'（发来多张）':'')+'。请用你的角色身份自然地回应：说说你从画面里看到的、以及你的真实感受，语气像真人聊天，不要复述"我收到图片了"这类客套。');
+      }catch(e){vir=null}
+      if(vir){
+        imgMsgs.forEach(m=>{m.visionDescribed=true});
+        save();
+        const round=nextChatRound(agent.id);
+        await handleAIParts(agent,vir,round);
+        checkAutoSummary(agent.id);
+        return;
+      }
+      /* 识图 API 未配置/失败：不再回头叠主 API 去识图，直接按文字历史走主 API */
+    }
     const history=buildHistoryText(agent);
     const reply=await sendChat(getAgentConfig(agent),pushCmdHiddenSystem([{role:'system',content:buildSystemPrompt(agent)},...history]));
     if(!reply){pushMsg(agent.id,'ai','（AI 没有返回内容，请检查模型名是否正确）');return}
@@ -4501,12 +4537,17 @@ function rhythmDelay(m){
   return 420+Math.min(520,len*16)+Math.random()*220;
 }
 /* 回车键：仅把文字发出去，不生成 AI 回复（发送键才触发回复） */
-/* 点击输入栏任意位置（按钮/弹层外）即聚焦并打开发送框 */
+/* 点击输入栏任意位置（按钮/弹层外）即聚焦并打开发送框。
+   用 pointerdown（同时覆盖鼠标与触屏），并对文本域本身也强制 focus，
+   解决移动端“只点左侧能进、甚至要点好几下”的问题：点输入框任意位置都应稳定聚焦。 */
 function openChatInput(e){
   const t=e&&e.target;
   if(!t)return;
-  if(t.closest('button,select,input,textarea,.popover,.pop-wrap a'))return;
-  const inp=$('#chatInput');if(inp)inp.focus();
+  /* 按钮 / 弹层 / 链接等交互控件要保留它们自己的点击，不抢焦点 */
+  if(t.closest('button,a,select,.popover,.seg-opt,.send-btn'))return;
+  const inp=$('#chatInput');
+  if(!inp)return;
+  if(!inp.disabled&&document.activeElement!==inp)inp.focus();
 }
 function sendTextOnly(){
   const input=$('#chatInput');
@@ -5013,6 +5054,33 @@ async function visionDescribeImage(dataUrl){
     });
     return (d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta)&&((d.choices[0].message||d.choices[0].delta).content||'')||'').trim();
   }catch(e){return ''}
+}
+/* 用识图 API「直接看图并生成回复」：不再叠加主 API。
+   未配置识图 API 或调用失败返回 null，由调用方回退到主 API 流程。 */
+async function visionChatReply(opt,imageDataUrls,prompt){
+  const url=(data.settings.visionUrl||'').trim(),key=(data.settings.visionKey||'').trim();
+  if(!url||!key||!opt)return null;
+  const model=data.settings.visionModel||opt.model||'gpt-4o-mini';
+  const imgs=await Promise.all((imageDataUrls||[]).map(async d=>{
+    const c=await compressDataUrl(d,1000,.82)||d;   /* 压缩后再送，避免超大图被拒 */
+    return {type:'image_url',image_url:{url:c}};
+  }));
+  if(!imgs.length)return null;
+  try{
+    const d=await relayFetch(normalizeUrl(url),'/chat/completions',{
+      method:'POST',
+      headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},
+      body:JSON.stringify({model,max_tokens:300,messages:[
+        {role:'system',content:opt.system||'你是一位真实的朋友，用自然口语回应。'},
+        {role:'user',content:[{type:'text',text:prompt},...imgs]}
+      ]}),
+      corsProxy:opt.corsProxy||''
+    });
+    const msg=d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta);
+    const content=msg&&(msg.content!=null?msg.content:(msg.delta?msg.delta.content:''))||'';
+    const t=String(content).trim();
+    return t||null;
+  }catch(e){return null}
 }
 function openGiftModal(){closeChatMore();$('#gmName').value='';$('#gmDesc').value='';$('#gmNote').value='';$('#giftModal').classList.add('open')}
 
@@ -9768,12 +9836,24 @@ function buildGenPrompt(agent,sceneText){
   const pp=activeGenPromptPreset();
   const positive=((pp&&pp.positive)||g.positive||'').trim();
   const negative=((pp&&pp.negative)||g.negative||'').trim();
+  const app=(agent&&agent.appearancePrompt&&agent.appearancePrompt.trim())?agent.appearancePrompt.replace(/\s+/g,' ').trim():'';
+  let scene=(sceneText&&sceneText.trim())?sceneText.replace(/\s+/g,' ').trim():'';
+  /* 正负面 + 容貌提示词必须完整保留（容貌是用户形象的核心，绝不截断）。
+     若总长度可能超接口限制导致整图失败（413），优先压缩 AI 生成的场景描述——它属于可牺牲的情节细节。 */
+  const cap=parseInt((data.gen&&data.gen.promptCap)||1500,10)||1500;
+  if(scene){
+    const fixed=positive.length+app.length+2;
+    const room=cap-fixed-20;
+    if(room>30)scene=scene.slice(0,room);
+    else scene='';
+  }
   const seg=[];
   if(positive)seg.push(positive);
-  if(agent&&agent.appearancePrompt&&agent.appearancePrompt.trim())seg.push(agent.appearancePrompt.replace(/\s+/g,' ').trim());
-  if(sceneText&&sceneText.trim())seg.push(sceneText.replace(/\s+/g,' ').trim());
+  if(app)seg.push(app);
+  if(scene)seg.push(scene);
   let prompt=seg.filter(Boolean).join('，');
-  /* 容貌/场景/正负面提示词要完整保留，不再截断；接口超限由 genImageCall 兜底 */
+  if(prompt.length>cap)prompt=prompt.slice(0,cap);
+  /* 场景/容貌/正负面按上限内尽量完整保留；接口若仍超限由 genImageCall 兜底 */
   return {prompt,negative,size:g.size||'square'};
 }
 /* 调用生图 API：优先 OpenAI 兼容 /images/generations，其次 text_to_image */
