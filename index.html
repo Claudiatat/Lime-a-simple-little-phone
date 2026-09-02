@@ -148,6 +148,12 @@ body{
 .mi-avatar{width:56px;height:56px;border-radius:10px;background:var(--field-bg);border:1.5px dashed var(--line);display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--ink-soft);cursor:pointer;overflow:hidden;flex-shrink:0}
 .mi-avatar img{width:100%;height:100%;object-fit:cover}
 .moments-list{margin-top:40px;padding:10px 14px 26px;display:flex;flex-direction:column;gap:13px}
+/* 角色发朋友圈：多选角色列表 */
+.ap-agents{display:flex;flex-wrap:wrap;gap:8px;max-height:180px;overflow-y:auto;padding:2px}
+.ap-check{display:flex;align-items:center;gap:7px;padding:6px 10px;border:1px solid var(--line);border-radius:12px;background:var(--paper);cursor:pointer;user-select:none}
+.ap-check input{accent-color:var(--main-deep)}
+.ap-check .ap-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:700;flex-shrink:0}
+.ap-check .ap-name{font-size:12.5px;color:var(--ink)}
 .m-post{background:var(--paper);border-radius:14px;padding:13px;box-shadow:0 8px 18px -12px var(--shadow)}
 .m-head{display:flex;align-items:center;gap:9px}
 .m-avatar{width:38px;height:38px;border-radius:6px;object-fit:cover;flex-shrink:0}
@@ -367,10 +373,16 @@ body{
 .hidden-divider.open .hd-arrow{transform:rotate(180deg)}
 .hidden-drawer{display:none;flex-direction:column;align-items:flex-start;gap:8px;padding:0 14px 8px;align-self:stretch}
 .hidden-drawer.open{display:flex}
+.hidden-group .hidden-drawer{display:none;opacity:.72}
+.hidden-group.open .hidden-drawer{display:flex}
+.hidden-group.open .hidden-divider .hd-arrow{transform:rotate(180deg)}
 .hidden-drawer .msg-row.hidden{max-width:78%;background:var(--bg);border-radius:12px;padding:6px 10px}
 .hidden-drawer .msg-row.hidden .hd-who{font-size:11px;color:var(--ink-soft);flex-shrink:0}
 .hidden-drawer .msg-row.hidden .msg{padding:4px 2px;font-size:13px;box-shadow:none;border:none;background:none;opacity:.8;flex:1;min-width:0}
 .hidden-drawer .msg-row.hidden .hd-restore{font-size:11px;color:var(--main-deep);flex-shrink:0;padding:2px 6px;border:1px solid var(--line);border-radius:10px;background:var(--paper)}
+/* 拉黑状态下智能体“未送达”的消息气泡：红叹号 + 虚线待发样式 */
+.msg.unsent{border:1px dashed rgba(229,57,53,.55);background:rgba(229,57,53,.06);opacity:.85}
+.msg.unsent .unsent-ic{color:#e53935;font-size:13px;margin-right:3px;font-weight:700}
 .msg-quote{background:var(--bg);border-left:3px solid var(--main-deep);border-radius:8px;padding:5px 9px;margin-bottom:6px;font-size:12px;line-height:1.5;color:var(--ink-soft);max-width:230px;overflow:hidden}
 .msg-quote .q-name{font-weight:600;color:var(--ink);margin-right:6px;white-space:nowrap}
 .msg-quote .q-body{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:inline-block;vertical-align:bottom;max-width:100%}
@@ -528,6 +540,9 @@ body{
 .gender-seg{display:flex;gap:8px}
 .gender-seg .seg-opt{flex:1;text-align:center;padding:10px;border-radius:12px;border:1.5px solid var(--line);background:var(--field-bg);color:var(--ink);font-size:14px;cursor:pointer}
 .gender-seg .seg-opt.on{border-color:var(--main-deep);background:var(--sel-bg);color:var(--ink)}
+/* 通用分段按钮（如朋友圈发图模式 apImgSeg）：默认分段按钮与选中态高亮 */
+.seg-opt{flex:1;text-align:center;padding:10px;border-radius:12px;border:1.5px solid var(--line);background:var(--field-bg);color:var(--ink);font-size:14px;cursor:pointer}
+.seg-opt.on{border-color:var(--main-deep);background:var(--sel-bg);color:var(--ink)}
 .gender-custom{margin-top:8px}
 /* 篇幅（字数）分段：两列换行布局，避免单行挤压成方块 */
 .range-seg{display:flex;flex-wrap:wrap;gap:8px}
@@ -1085,7 +1100,11 @@ body{
 .gal-panel.on{display:flex}
 .gal-scroll{flex:1;overflow-y:auto;padding:12px 14px}
 .gal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-.gal-grid.waterfall{grid-auto-flow:row dense}
+/* 双栏瀑布流：CSS columns 自动按高度排列成两列，无需 JS 计算跨度 */
+.gal-grid.waterfall{display:block;columns:2;column-gap:10px}
+.gal-grid.waterfall .gal-cell{display:inline-block;width:100%;margin:0 0 10px;break-inside:avoid;page-break-inside:avoid}
+.gal-grid.waterfall .gal-cell-img{width:100%;height:auto}
+.gal-grid.waterfall .gal-cell-img .gal-img{width:100%;height:auto}
 .gal-cell{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
 .gal-cell-img{background:var(--field-bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
 .gal-cell-img .gal-cell-ph{font-size:28px;opacity:.5}
@@ -1328,7 +1347,15 @@ body{
     <header class="hdr">
       <button class="hbtn jelly-btn" onclick="switchTab('list')" title="返回"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg></button>
       <h1>信件</h1>
-      <div class="toggle on" id="letterToggle" onclick="this.classList.toggle('on');data.letters.enabled=this.classList.contains('on');save()"><div class="knob"></div></div>
+      <div class="pop-wrap">
+        <button class="hbtn jelly-btn" onclick="toggleLetterFreqMenu()" title="来信频率"><svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.2 4.2l2.8 2.8M17 17l2.8 2.8M1 12h4M19 12h4M4.2 19.8l2.8-2.8M17 7l2.8-2.8"/></svg></button>
+        <div class="popover" id="letterFreqMenu">
+          <div class="item" onclick="setLetterFreq('high')">高 · 20~30 轮一封</div>
+          <div class="item" onclick="setLetterFreq('mid')">中 · 30~50 轮一封</div>
+          <div class="item" onclick="setLetterFreq('low')">低 · 50~70 轮一封</div>
+          <div class="item" onclick="setLetterFreq('off')">不生成</div>
+          </div>
+      </div>
     </header>
     <div class="letters-wrap" id="lettersWrap">
       <div class="hint" id="letterHint" style="display:none;margin:10px 16px 0;padding:10px 12px;border-radius:10px;background:#f7e8c8;color:#8a7430">💤 信件功能已关闭，开启后将自动接收 ta 来信。</div>
@@ -1441,9 +1468,9 @@ body{
         <div class="item" onclick="editCurrentAgent()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>编辑 ta</div>
         <div class="item" onclick="togglePin()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2z"/></svg><span id="pinLabel">置顶</span></div>
         <div class="item" onclick="toggleOfflineMode()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 12h8"/></svg><span id="offlineLabel">线下模式</span></div>
+        <div class="item" onclick="toggleBlockAgent()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><span id="blockLabel">拉黑</span></div>
         <div class="item" id="novelSettingsItem" onclick="closeChatMenu();openNovelModal()" style="display:none"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>小说设置</div>
         <div class="item" onclick="clearChat()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>清空对话</div>
-        <div class="item danger" onclick="deleteCurrentChat()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>删除</div>
         <div class="item" onclick="exportChat()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>导出对话</div>
         <div class="item" onclick="importChat()"><svg class="ic" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>导入对话</div>
       </div>
@@ -1458,7 +1485,7 @@ body{
   <div class="multi-bar" id="multiBar" hidden>
     <div class="mb-info">已选 <b id="mbCount">0</b> 条</div>
     <div class="mb-actions">
-      <button class="mb-btn" onclick="multiHide()"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M3 12a9 9 0 0 0 18 0"/><circle cx="12" cy="12" r="2.6"/></svg>隐藏</button>
+      <button class="mb-btn" onclick="multiHide()"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 0 1 18 0"/><path d="M3 12a9 9 0 0 0 18 0"/><circle cx="12" cy="12" r="2.6"/></svg><span id="mbHideTxt">隐藏</span></button>
       <button class="mb-btn" onclick="multiCollect()"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>收藏</button>
       <button class="mb-btn danger" onclick="multiDelete()"><svg class="ic" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>删除</button>
       <button class="mb-btn" onclick="multiSelectAll()">全选</button>
@@ -2547,13 +2574,15 @@ body{
 <div class="modal-mask" id="agentPostModal" onclick="if(event.target===this)this.classList.remove('open')">
   <div class="modal-card">
     <div class="modal-head"><h3>角色发朋友圈</h3><button class="close-btn" onclick="document.getElementById('agentPostModal').classList.remove('open')">✕</button></div>
-    <div class="field"><label>选择角色（AI 会结合聊天剧情生成）</label><select id="apAgent"></select></div>
-    <button class="primary-btn jelly-btn" onclick="genAgentPost()">AI 生成内容</button>
-    <div id="apPreview" hidden>
-      <div class="field"><label>正文（可编辑）</label><textarea id="apContent" rows="3"></textarea></div>
-      <div class="field"><label>图片描述（留空表示无图）</label><input id="apImageDesc" placeholder="例如：一只在落叶堆里打滚的小猫"></div>
-      <button class="primary-btn jelly-btn" onclick="publishAgentPost()">发布</button>
+    <div class="field"><label>选择角色（可多选，AI 会结合各自聊天剧情生成）</label><div class="ap-agents" id="apAgents"></div></div>
+    <div class="field"><label>发图模式（“发图”= 调用生图 API 生成真图；不发图时也会按角色生成文字图）</label>
+      <div class="seg" id="apImgSeg">
+        <button type="button" class="seg-opt on" data-img="all" onclick="apImgMode('all')">全部发图</button>
+        <button type="button" class="seg-opt" data-img="random" onclick="apImgMode('random')">随机发图</button>
+        <button type="button" class="seg-opt" data-img="none" onclick="apImgMode('none')">不发图</button>
+      </div>
     </div>
+    <button class="primary-btn jelly-btn" onclick="genPublishAgentPosts()">AI 生成并发布</button>
   </div>
 </div>
 
@@ -2673,7 +2702,7 @@ function defaultData(){
     moments:{cover:null,myName:null,myAvatar:null,posts:[]},
     letters:{enabled:true,nextAt:{},list:[]},
     market:{balance:1000,cart:[],orders:[]},
-    settings:{autoScroll:true,timeAware:false,showTime:false,sendMode:'burst',visionUrl:'',visionKey:'',visionModel:'',maxTokens:'',streamOutput:false},
+    settings:{autoScroll:true,timeAware:false,showTime:false,sendMode:'batch',visionUrl:'',visionKey:'',visionModel:'',maxTokens:'',streamOutput:false},
     gen:{presets:[],activePresetId:null,promptPresets:[],activePromptId:null,positive:'',negative:'',size:'square'},
     gallery:{favorites:[]},
     chatFavorites:[],
@@ -2733,12 +2762,12 @@ function migrate(d){
   d.appearance={theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:52,tabbarH:56,appIcons:{},...(d.appearance||{})};
   d.moments={cover:null,myName:null,myAvatar:null,posts:[],...(d.moments||{})};
   d.moments.posts=d.moments.posts||[];
-  d.letters={enabled:true,nextAt:{},list:[],...(d.letters||{})};
+  d.letters={enabled:true,nextAt:{},list:[],freq:'mid',...(d.letters||{})};
   if(typeof d.letters.nextAt==='number')d.letters.nextAt={};
   d.letters.list=d.letters.list||[];
   d.market={balance:1000,cart:[],orders:[],...(d.market||{})};
   d.market.cart=d.market.cart||[];d.market.orders=d.market.orders||[];
-  d.settings={autoScroll:true,timeAware:false,showTime:false,sendMode:'burst',visionUrl:'',visionKey:'',visionModel:'',maxTokens:'',streamOutput:false,...(d.settings||{})};
+  d.settings={autoScroll:true,timeAware:false,showTime:false,sendMode:'batch',visionUrl:'',visionKey:'',visionModel:'',maxTokens:'',streamOutput:false,...(d.settings||{})};
   /* 记忆APP */
   d.memories=d.memories||{};
   d.memoryRounds=d.memoryRounds||{};
@@ -2747,6 +2776,18 @@ function migrate(d){
   d.sideStories=d.sideStories||[];
   /* 隐藏抽屉：被隐藏的对话（不计入记忆/总结/角色读取） */
   d.hiddenChats=d.hiddenChats||{};
+  /* 迁移：旧版独立隐藏数组并入聊天记录并标记 m.hidden，以便在原位置内联展示 */
+  if(!d.__hiddenMigrated){
+    d.__hiddenMigrated=true;
+    Object.keys(d.hiddenChats).forEach(aid=>{
+      const arr=d.hiddenChats[aid]||[];
+      if(!arr.length)return;
+      const chs=d.chats[aid]=d.chats[aid]||[];
+      arr.forEach(m=>{if(m)Object.assign(m,{hidden:true})});
+      chs.push(...arr);
+    });
+    d.hiddenChats={};
+  }
   /* 音乐APP */
   d.music=d.music||{};
   d.music.queue=d.music.queue||[];
@@ -3529,12 +3570,50 @@ function saveAgent(){
   save();backToChatList();snack('已保存');
 }
 function deleteAgent(){
-  if(!editingAgentId)return;
-  if(!confirm('删除这个 ta？对话记录也会一并删除。'))return;
-  data.agents=data.agents.filter(a=>a.id!==editingAgentId);
-  delete data.chats[editingAgentId];
-  if(currentAgentId===editingAgentId)currentAgentId=null;
-  save();backToChatList();snack('已删除');
+  const id=editingAgentId||currentAgentId;
+  if(!id)return;
+  /* 二次弹窗确认：第一步先亮明风险，第二步再让用户明确选“确认删除”才真正执行 */
+  askConfirm('删除这个 ta？其对话、隐藏记录、记忆、心声、礼物、关系、状态、信件等所有数据都将一并删除，无法恢复。',()=>{
+    askConfirm('再次确认：删除后无法恢复，确定要永久删除「'+(data.agents.find(a=>a.id===id)?.name||'ta')+'」吗？',()=>{
+    data.agents=data.agents.filter(a=>a.id!==id);
+    /* 彻底清除该智能体在数据表里的一切痕迹，避免残留导致列表/其它页面仍能看到它 */
+    delete data.chats[id];
+    if(data.hiddenChats)delete data.hiddenChats[id];
+    if(data.memories)delete data.memories[id];
+    if(data.thoughts)delete data.thoughts[id];
+    if(data.gifts)delete data.gifts[id];
+    if(data.relationships)delete data.relationships[id];
+    if(data.status)delete data.status[id];
+    if(data.conversations)delete data.conversations[id];
+    if(data.letters)delete data.letters[id];
+    if(currentAgentId===id)currentAgentId=null;
+    if(thoughtAgentId===id)thoughtAgentId=null;
+    editingAgentId=null;
+    /* 其它二级数据里去重该 agent 的残留，确保列表/收藏/朋友圈等不再出现 */
+    ['moments'].forEach(k=>{const c=data[k];if(c&&c.posts)data[k].posts=(c.posts||[]).filter(p=>!p.agentId||p.agentId!==id)});
+    save();backToChatList();renderChatList();snack('已删除');
+    });
+  });
+}
+/* 应用内确认对话框：确保删除必须显式点“删除”才会执行（原生 confirm 在部分 WebView 恒返回 true） */
+const __askConfirmOJ={el:null,msg:null};
+function hideAsk(){if(__askConfirmOJ.el)__askConfirmOJ.el.classList.remove('open')}
+function askConfirm(message,onYes){
+  let oj=__askConfirmOJ;
+  if(!oj.el){
+    const m=document.createElement('div');m.className='modal-mask';
+    m.innerHTML='<div class="modal-card"><div class="modal-head"><h3>确认删除</h3></div>'+
+      '<div class="ac-msg" style="padding:4px 2px 14px;font-size:13px;line-height:1.6;color:var(--ink)"></div>'+
+      '<div style="display:flex;gap:10px"><button type="button" class="seg-opt" id="acNo" style="flex:1;background:var(--bg)">取消</button>'+
+      '<button type="button" class="primary-btn jelly-btn" id="acYes" style="flex:1">确认删除</button></div></div>';
+    document.body.appendChild(m);
+    m.addEventListener('click',e=>{if(e.target===m)hideAsk()});
+    m.querySelector('#acNo').onclick=hideAsk;
+    oj.el=m;oj.msg=m.querySelector('.ac-msg');
+  }
+  oj.msg.textContent=message;
+  oj.el.querySelector('#acYes').onclick=function(){hideAsk();if(onYes)onYes()};
+  oj.el.classList.add('open');
 }
 
 /* ===== 内置活人感规则（全局默认生效，不展示给用户） ===== */
@@ -3590,6 +3669,7 @@ function updateChatMenu(){
   if(!a)return;
   $('#pinLabel').textContent=a.pinned?'取消置顶':'置顶';
   $('#offlineLabel').textContent=MODE_NAMES[agentMode(a)];
+  const bl=$('#blockLabel');if(bl)bl.textContent=a.blocked?'解除拉黑':'拉黑';
   const si=$('#novelSettingsItem');if(si)si.style.display=a.novelMode?'':'none';
 }
 function togglePin(){
@@ -3598,6 +3678,40 @@ function togglePin(){
   if(!a)return;
   a.pinned=!a.pinned;
   save();snack(a.pinned?'已置顶':'已取消置顶');
+}
+/* ===== 拉黑：用户拉黑智能体后，ta 发消息以“未送达”红叹号呈现，并按性格反应 ===== */
+function toggleBlockAgent(){
+  document.getElementById('chatMenu').classList.remove('open');
+  const a=data.agents.find(x=>x.id===currentAgentId);
+  if(!a)return;
+  if(a.blocked){
+    /* 解除拉黑：把拉黑期间“未送达”的消息恢复为正常已发送，智能体也恢复正常对话 */
+    (data.chats[a.id]||[]).forEach(m=>{if(m.blocked)delete m.blocked});
+    a.blocked=false;
+    save();renderMessages();updateChatMenu();
+    snack('已解除对 '+displayName(a)+' 的拉黑');
+  }else{
+    a.blocked=true;
+    save();updateChatMenu();
+    snack('已拉黑 '+displayName(a)+'，ta 发消息会以“未送达”红叹号呈现');
+  }
+}
+/* 拉黑状态下点回复：ta 会按自己性格对你被拉黑做出反应，气泡带未送达红叹号 */
+async function handleBlockedReply(agent){
+  const persona=agent.persona&&agent.persona.trim();
+  const sys=persona?('你现在代入以下角色，用这个身份自然回应。\n\n'+persona):('你正在扮演「'+displayName(agent)+'」，请自然回应。');
+  const blockNotice='\n【当前处境】你刚被对方拉黑了。你发出去的这几条消息都停在“未送达”的状态，前面挂着红色感叹号，对方收不到、也不会回你。请按你的人物性格真实地对此做出反应：性格粘人或讨好的，会低落示好、忍不住想挽留解释；性格冷淡或要强的，会默默咽下委屈、欲言又止，不让对方看出自己难过；性格傲娇的，会嘴硬又有点慌。你可以不点破“拉黑”这个词，但要让情绪自然流露。照你平时的说话条数、长短和风格输出多条消息，每条一行，绝不要提到这是系统提示或AI。';
+  const history=buildHistoryText(agent);
+  const rc=(agent&&agent.replyCount)||{mode:'3-5',min:3,max:5};
+  let reply='';
+  try{
+    reply=await sendChat(getAgentConfig(agent),[{role:'system',content:sys},{role:'user',content:blockNotice},...history]);
+  }catch(e){const em=friendlyError(e);pushMsg(agent.id,'ai','⚠️ '+em,null,nextChatRound(agent.id));save();renderMessages();return}
+  const round=nextChatRound(agent.id);
+  const max=rc.max||5;
+  const lines=String(reply||'').split(/\r?\n/).map(s=>s.trim()).filter(Boolean);
+  lines.slice(0,max).forEach(t=>{if(t)addMsg(agent.id,{role:'ai',type:'text',content:t,blocked:true},round)});
+  save();renderMessages();scrollDown();
 }
 /* 点击聊天菜单「聊天模式」：弹出 线上 / 旁白线下 / 小说模式 选择弹窗 */
 function toggleOfflineMode(){
@@ -3779,15 +3893,6 @@ function importNovelPresetInto(input){
     if(input)input.value='';
   }).catch(()=>{snack('文件解析失败，请检查格式');if(input)input.value=''});
 }
-function deleteCurrentChat(){
-  document.getElementById('chatMenu').classList.remove('open');
-  if(!confirm('确定删除这条对话？'))return;
-  if(!confirm('再次确认：删除后将无法恢复，确定要删除吗？'))return;
-  const a=data.agents.find(x=>x.id===currentAgentId);
-  if(a)a.thoughts=[];
-  delete data.chats[currentAgentId];
-  save();backToChatList();snack('已删除');
-}
 function editCurrentAgent(){document.getElementById('chatMenu').classList.remove('open');openAgentForm(currentAgentId)}
 /* 我方头像：优先用绑定的用户人设头像，否则用色块+首字 */
 function getUserAvatarInfo(){
@@ -3927,8 +4032,10 @@ function createMsgEl(m,animate){
     div.innerHTML='<div class="call-reject-card"><span class="crc-ic">📵</span><div class="crc-txt">'+(m.role==='ai'?'ta 拒绝了通话':'你拒绝了'+(m.callType==='video'?'视频':'语音')+'通话')+'</div></div>';
     wrap.appendChild(div);
   }else{
-    const div=document.createElement('div');div.className='msg '+m.role;
+    const div=document.createElement('div');div.className='msg '+m.role+(m.blocked?' unsent':'');
+    if(m.blocked)div.setAttribute('title','未送达·时间'+formatMsgTime(m.ts||Date.now()));
     if(m.quote)div.insertAdjacentHTML('afterbegin',quoteHTML(m.quote));
+    if(m.blocked){const ex=document.createElement('span');ex.className='unsent-ic';ex.textContent='❗';div.appendChild(ex)}
     div.appendChild(document.createTextNode(m.content||''));
     wrap.appendChild(div);
   }
@@ -3970,14 +4077,17 @@ function renderMessages(){
   const list=$('#msgList');
   list.innerHTML='';
   const msgs=data.chats[currentAgentId]||[];
-  /* 隐藏抽屉：被隐藏的对话展示在最上方，可展开/收起，不影响任何上下文 */
-  const hdArr=(data.hiddenChats&&data.hiddenChats[currentAgentId])||[];
-  if(hdArr.length){
-    list.appendChild(buildHiddenDrawer(hdArr));
-    list.appendChild(buildHiddenBody(hdArr));
+  /* 隐藏消息仍在原数组原位（m.hidden 标记）；渲染时把连续的隐藏消息在原位置折叠成一个抽屉，不计数也不进记忆 */
+  if(!msgs.length){const d=document.createElement('div');d.className='empty';d.textContent='开始聊天吧 ✨';list.appendChild(d)}
+  let i=0;
+  while(i<msgs.length){
+    if(msgs[i]&&msgs[i].hidden){
+      const grp=[];while(i<msgs.length&&msgs[i]&&msgs[i].hidden)grp.push(msgs[i++]);
+      list.appendChild(buildHiddenGroup(grp));
+    }else{
+      list.appendChild(createMsgEl(msgs[i++],false));
+    }
   }
-  if(!msgs.length&&!hdArr.length){const d=document.createElement('div');d.className='empty';d.textContent='开始聊天吧 ✨';list.appendChild(d)}
-  msgs.forEach(m=>list.appendChild(createMsgEl(m,false)));
   list.appendChild(createTypingEl());
   scrollDown();
 }
@@ -4122,15 +4232,15 @@ async function requestReplyFor(agent){
   if(!agent||loading)return;
   showTyping(true);setLoading(true,false);
   try{
+    if(agent.blocked){await handleBlockedReply(agent);checkAutoSummary(agent.id);return}
     const pending=pendingAvatarPhoto(agent);
     if(pending){await runAvatarDecision(agent,pending);checkAutoSummary(agent.id);return}
-    /* 相机发的本地图片：用户点击发送键时才调用识图 API 补全内容描述（不重复调用） */
+    /* 相机发的本地图片：点击发送键时对所有待识别的图片【并发】调用识图 API（同时识别，内容补全进上下文） */
     const imgMsgs=(data.chats[agent.id]||[]).filter(m=>m.type==='photo'&&m.img&&!m.visionDescribed);
-    for(const m of imgMsgs){
+    await Promise.all(imgMsgs.map(m=>{
       m.visionDescribed=true;
-      const d=await visionDescribeImage(m.img);
-      if(d)m.visionDesc=d;
-    }
+      return visionDescribeImage(m.img).then(d=>{if(d)m.visionDesc=d});
+    }));
     const history=buildHistoryText(agent);
     const reply=await sendChat(getAgentConfig(agent),pushCmdHiddenSystem([{role:'system',content:buildSystemPrompt(agent)},...history]));
     if(!reply){pushMsg(agent.id,'ai','（AI 没有返回内容，请检查模型名是否正确）');return}
@@ -4475,7 +4585,7 @@ function applyReplyCount(agent,units){
 /* ===== 消息气泡操作（双击弹出菜单） ===== */
 let ctxMsgIdx=-1;   // 当前操作的消息在 data.chats[currentAgentId] 中的下标
 let ctxIsOwn=false; // 是否自己的气泡
-function getMsgRows(){return [...($('#msgList').querySelectorAll('.msg-row:not(.hidden)'))]}
+function getMsgRows(){return [...($('#msgList').querySelectorAll('.msg-row'))]}
 function currentMsgs(){return data.chats[currentAgentId]||[]}
 function openMsgMenu(row,idx){
   const m=currentMsgs()[idx];
@@ -4670,6 +4780,10 @@ function enterMultiMode(){
   closeMsgMenu();
   const list=$('#msgList');
   list.classList.add('multi');
+  /* 展开隐藏分组，让隐藏消息也可被多选（取消隐藏/删除） */
+  $$('#msgList .hidden-group').forEach(g=>{
+    if(!g.classList.contains('open')){g.classList.add('open');const h=g.querySelector('.hidden-divider');if(h)h.classList.add('open');const a=g.querySelector('.hd-arrow');if(a)a.textContent='▲'}
+  });
   /* 为每条消息插入选择圈 */
   getMsgRows().forEach(r=>{
     const ck=document.createElement('span');ck.className='sel-check';
@@ -4702,6 +4816,11 @@ function toggleMultiSel(idx){
 }
 function updateMultiUI(){
   const c=$('#mbCount');if(c)c.textContent=multiSelected.size;
+  /* 隐藏按钮标签：选中项全是已隐藏则显示“取消隐藏”，否则“隐藏” */
+  const msgs=currentMsgs();
+  let has=false,allHide=true;
+  multiSelected.forEach(i=>{const m=msgs[i];if(!m)return;has=true;if(!m.hidden)allHide=false});
+  const txt=$('#mbHideTxt');if(txt)txt.textContent=(has&&allHide)?'取消隐藏':'隐藏';
 }
 function multiSelectAll(){
   const msgs=currentMsgs();
@@ -4710,22 +4829,18 @@ function multiSelectAll(){
   rows.forEach((r,i)=>{r.classList.toggle('sel',multiSelected.has(i));const ck=r.querySelector('.sel-check');if(ck)ck.classList.toggle('on',multiSelected.has(i));});
   updateMultiUI();
 }
-/* 隐藏：把选中的消息移入隐藏抽屉（不影响记忆/总结/角色读取，可展开查看、恢复） */
+/* 隐藏/取消隐藏：在原位置打 hidden 标记（不进记忆/总结）；若选中的全是已隐藏消息则转为取消隐藏 */
 function multiHide(){
   if(!multiSelected.size){snack('请先选择要隐藏的消息');return}
   const msgs=currentMsgs();
-  const idxs=[...multiSelected].sort((a,b)=>a-b);
-  const picked=idxs.map(i=>msgs[i]).filter(Boolean);
+  const picked=[...multiSelected].map(i=>msgs[i]).filter(Boolean);
   if(!picked.length)return;
-  /* 从原数组移除（倒序 splice 保下标） */
-  [...idxs].reverse().forEach(i=>{if(i>=0&&i<msgs.length)msgs.splice(i,1)});
-  const hd=data.hiddenChats=data.hiddenChats||{};
-  const arr=hd[currentAgentId]=hd[currentAgentId]||[];
-  arr.push(...picked);
+  const allHidden=picked.every(m=>m.hidden);
+  picked.forEach(m=>{if(allHidden){delete m.hidden}else{m.hidden=true}});
   save();
   exitMultiMode();
   renderMessages();
-  snack('已隐藏 '+picked.length+' 条对话');
+  snack((allHidden?'已取消隐藏 ':'已隐藏 ')+picked.length+' 条对话');
 }
 /* 删除：直接从聊天记录中移除（不计入记忆/总结） */
 function multiDelete(){
@@ -4783,43 +4898,33 @@ function hiddenMsgText(m){
   if(m.type==='action')return '*'+m.content+'*';
   return m.content||'';
 }
-function buildHiddenDrawer(hidden){
-  const div=document.createElement('div');
-  div.className='hidden-divider';
-  div.innerHTML='<span>🗂 已隐藏的对话（'+hidden.length+' 条）</span><span class="hd-arrow">▼</span>';
-  div.onclick=()=>{div.classList.toggle('open');$('#hiddenDrawerBody').classList.toggle('open');scrollDown()};
-  return div;
-}
-function buildHiddenBody(hidden){
+/* 原位置折叠抽屉：把连续的隐藏消息在聊天流原位渲染成可展开/收起的一组 */
+function buildHiddenGroup(items){
+  const wrap=document.createElement('div');
+  wrap.className='hidden-group'+(multiMode?' open':'');
+  const hdr=document.createElement('div');
+  hdr.className='hidden-divider';
+  hdr.innerHTML='<span>🗂 已隐藏的对话（'+items.length+' 条）</span><span class="hd-arrow">▼</span>';
+  hdr.onclick=()=>{
+    wrap.classList.toggle('open');
+    hdr.classList.toggle('open');
+    const a=hdr.querySelector('.hd-arrow');if(a)a.textContent=wrap.classList.contains('open')?'▲':'▼';
+    hdr.scrollIntoView({behavior:'smooth',block:'nearest'});
+  };
   const body=document.createElement('div');
-  body.id='hiddenDrawerBody';
-  body.className='hidden-drawer';
-  hidden.forEach((m,i)=>{
+  body.className='hidden-drawer hidden-group-body';
+  items.forEach(m=>{
     const row=document.createElement('div');
     row.className='msg-row hidden '+m.role;
-    const who=document.createElement('span');
-    who.className='hd-who';
-    who.textContent=m.role==='user'?'我':'ta';
-    const bubble=document.createElement('div');
-    bubble.className='msg '+m.role;
-    bubble.textContent=hiddenMsgText(m);
-    const rst=document.createElement('button');
-    rst.className='hd-restore';
-    rst.textContent='恢复';
-    rst.onclick=function(){restoreHiddenMsg(i)};
+    const who=document.createElement('span');who.className='hd-who';who.textContent=m.role==='user'?'我':'ta';
+    const bubble=document.createElement('div');bubble.className='msg '+m.role;bubble.textContent=hiddenMsgText(m);
+    const rst=document.createElement('button');rst.className='hd-restore';rst.textContent='恢复';
+    rst.onclick=function(e){e.stopPropagation();delete m.hidden;save();renderMessages();snack('已恢复')};
     row.append(who,bubble,rst);
     body.appendChild(row);
   });
-  return body;
-}
-function restoreHiddenMsg(i){
-  const arr=(data.hiddenChats&&data.hiddenChats[currentAgentId])||[];
-  const m=arr[i];
-  if(!m)return;
-  arr.splice(i,1);
-  const msgs=data.chats[currentAgentId]=data.chats[currentAgentId]||[];
-  msgs.push(m);
-  save();renderMessages();snack('已恢复');
+  wrap.append(hdr,body);
+  return wrap;
 }
 
 /* 第3条：扩展消息（表情/语音/照片/转账/礼物）只发出去，不自动生成 AI 回复；
@@ -5024,7 +5129,7 @@ function sendGift(){
 /* 构建包含扩展消息的上下文 */
 function buildHistoryText(agent){
   const isNovel=agent&&agent.novelMode;
-  return (data.chats[agent.id]||[]).slice(-20).flatMap(m=>{
+  return (data.chats[agent.id]||[]).filter(m=>!m.hidden).slice(-20).flatMap(m=>{
     if(m.type==='action')return {role:m.role==='user'?'user':'assistant',content:'*'+m.content+'*'};
     let content=m.content;
     if(m.type==='voice')content='[语音消息内容] '+m.content;
@@ -6580,7 +6685,7 @@ function renderAppearance(){
   $('#tabbarHVal').textContent=a.tabbarH||0;
   const st=data.settings;
   $('#showTimeToggle').classList.toggle('on',!!st.showTime);
-  $$('#sendModeSeg .seg-opt').forEach(s=>s.classList.toggle('on',s.dataset.mode===(st.sendMode||'burst')));
+  $$('#sendModeSeg .seg-opt').forEach(s=>s.classList.toggle('on',s.dataset.mode===(st.sendMode||'batch')));
   renderSwatches('userBubbleSwatches',BUBBLE_COLORS,a.userBubble);
   renderSwatches('aiBubbleSwatches',BUBBLE_COLORS,a.aiBubble);
   renderSwatches('chatBgSwatches',BG_COLORS,a.chatBg?.type==='color'?a.chatBg.value:null);
@@ -6803,38 +6908,67 @@ async function publishUserPost(){
   if(post)genPostComments(post.id);
 }
 function openAgentPost(){
-  const s=$('#apAgent');
+  const box=$('#apAgents');
   if(!data.agents.length){snack('还没有 ta，先去创建');return}
-  s.innerHTML=data.agents.map(a=>'<option value="'+a.id+'">'+escapeHtml(a.name)+'</option>').join('');
-  $('#apPreview').hidden=true;
+  box.innerHTML=data.agents.map(a=>
+    '<label class="ap-check"><input type="checkbox" value="'+a.id+'" checked>'+
+    '<span class="ap-av" style="background:'+AVATAR_COLORS[(a.color||0)%AVATAR_COLORS.length]+'">'+escapeHtml((a.name||'?').slice(0,1))+'</span>'+
+    '<span class="ap-name">'+escapeHtml(a.name)+'</span></label>'
+  ).join('');
+  apImgMode('all');
   $('#agentPostModal').classList.add('open');
 }
-async function genAgentPost(){
-  const agentId=$('#apAgent').value;
-  const agent=data.agents.find(a=>a.id===agentId);
-  if(!agent){snack('请先选择角色');return}
+/* 发图模式切换：全部发图 / 随机发图 / 不发图 */
+function apImgMode(m){
+  document.querySelectorAll('#apImgSeg .seg-opt').forEach(b=>b.classList.toggle('on',(b.dataset.img===m)));
+}
+/* 生成单个角色的一条朋友圈：正文 + 图片画面描述 */
+async function genOneAgentPost(agent){
+  const sys='你是'+agent.name+'。'+agent.persona+'\n现在请以你的口吻发一条朋友圈，正文1~3句话，自然生活化，结合你与对方的聊天剧情。如果这条朋友圈适合配图，请用一句话描述图片画面内容（写实、有细节）；不需要配图则留空。\n只输出JSON：{"content":"朋友圈正文","imageDesc":"可用一句话描述的画面内容，无图则为空字符串"}';
+  const raw=await sendChat(pickConfig(agent,'agentPost'),[{role:'system',content:sys},{role:'user',content:'最近的聊天剧情：\n'+(chatPreview(agent.id)||'（暂无）')}]);
+  const j=parseJSON(raw);
+  if(!j||!j.content)throw new Error('生成失败');
+  return{content:j.content,imageDesc:j.imageDesc||''};
+}
+/* 按发图模式决定本条是否调用生图API：全部→是；随机→50%；不发图→否 */
+function postShouldImage(mode){
+  if(mode==='all')return true;
+  if(mode==='random')return Math.random()<0.5;
+  return false;
+}
+/* 按角色形象/画面描述调用生图API生成真图；未配置生图API或失败返回 null（退回文字图） */
+async function makePostImage(agent,imageDesc){
+  try{
+    const pp=activeGenPreset();
+    if(!pp||!imageDesc)return null;
+    let p=imageDesc;
+    if(agent.appearancePrompt&&agent.appearancePrompt.trim())p='（角色形象：'+agent.appearancePrompt.replace(/\s+/g,' ').trim().slice(0,120)+'）'+p;
+    const r=await genImageCall(pp,p,'',(data.gen&&data.gen.size)||'square');
+    return (r&&(r.dataUrl||r.url))||null;
+  }catch(e){return null}
+}
+async function genPublishAgentPosts(){
+  const ids=[...$$('#apAgents input:checked')].map(i=>i.value);
+  if(!ids.length){snack('请先勾选至少一个角色');return}
+  const mode=(document.querySelector('#apImgSeg .seg-opt.on')||{}).dataset.img||'none';
   if(!preflightSend('agentPost'))return;
   setLoading(true);
+  const posts=[];
   try{
-    const sys='你是'+agent.name+'。'+agent.persona+'\n现在请以你的口吻发一条朋友圈，正文1~3句话，自然生活化，结合你与对方的聊天剧情。如果这条朋友圈适合配图，请用一句话描述图片画面内容（写实、有细节）；不需要配图则留空。\n只输出JSON：{"content":"朋友圈正文","imageDesc":"图片画面描述，无图则为空字符串"}';
-    const raw=await sendChat(pickConfig(agent,'agentPost'),[{role:'system',content:sys},{role:'user',content:'最近的聊天剧情：\n'+(chatPreview(agent.id)||'（暂无）')}]);
-    const j=parseJSON(raw);
-    if(!j||!j.content)throw new Error('生成失败');
-    $('#apContent').value=j.content;
-    $('#apImageDesc').value=j.imageDesc||'';
-    $('#apPreview').hidden=false;
+    for(const id of ids){
+      const agent=data.agents.find(a=>a.id===id);
+      if(!agent)continue;
+      const {content,imageDesc}=await genOneAgentPost(agent);
+      const shouldImg=postShouldImage(mode)&&!!imageDesc;
+      const image=shouldImg?await makePostImage(agent,imageDesc):null;
+      posts.push({id:'mp_'+Date.now()+'_'+id,type:'agent',agentId:agent.id,author:agent.name,color:agent.color||0,avatar:null,content,image,imageDesc:agent.imageMode==='none'?'':imageDesc,ts:Date.now(),replies:[]});
+    }
+    data.moments.posts.push(...posts);
+    save();renderMoments();
+    $('#agentPostModal').classList.remove('open');
+    snack('已发布'+posts.length+'条朋友圈');
   }catch(e){snack(friendlyError(e))}
   finally{setLoading(false)}
-}
-function publishAgentPost(){
-  const agentId=$('#apAgent').value;
-  const agent=data.agents.find(a=>a.id===agentId);
-  const content=$('#apContent').value.trim();
-  if(!agent||!content){snack('内容为空');return}
-  data.moments.posts.push({id:'mp_'+Date.now(),type:'agent',agentId:agent.id,author:agent.name,color:agent.color||0,avatar:null,content,image:null,imageDesc:$('#apImageDesc').value.trim(),ts:Date.now(),replies:[]});
-  save();renderMoments();
-  $('#agentPostModal').classList.remove('open');
-  snack('已发布');
 }
 async function genPostComments(postId){
   const post=data.moments.posts.find(p=>p.id===postId);
@@ -6843,7 +6977,13 @@ async function genPostComments(postId){
   const pool=data.agents.filter(a=>a.id!==post.agentId);
   if(!pool.length){snack('还没有其它 ta 可以回复');return}
   const picked=shuffle(pool).slice(0,3+Math.floor(Math.random()*3));
-  const postDesc=post.content+(post.imageDesc?'（配图描述：'+post.imageDesc+'）':'')+(post.image?'（配了一张图片）':'');
+  /* 用户发的朋友圈带真图，且接入了识图 API：先识图，让角色看到画面内容再评论（智能体发图有提示词，无需识图） */
+  let vision='';
+  if(post.image&&!post.agentId&&data.settings&&(data.settings.visionUrl||'').trim()){
+    try{const d=await visionDescribeImage(post.image);if(d)vision=d}catch(e){}
+  }
+  const postDesc=post.content+(post.imageDesc?'（配图描述：'+post.imageDesc+'）':'')+
+    (vision?'（图片画面内容：'+vision+'）':(post.image?'（配了一张图片）':''));
   setLoading(true);
   try{
     const results=await Promise.all(picked.map(async a=>{
@@ -6908,9 +7048,32 @@ function renderLetters(){
   const sorted=[...data.letters.list].sort((a,b)=>b.ts-a.ts);
   $('#letterFavCount').textContent=data.letters.list.filter(l=>l.favorited).length+' 封收藏';
   $('#lettersList').innerHTML=sorted.length?sorted.map(letterCardHtml).join(''):'<div class="empty" style="padding:44px 0">还没有信件<br>和 ta 多聊聊天，也许会收到一封来信</div>';
-  $('#letterToggle').classList.toggle('on',!!data.letters.enabled);
+  const lt=$('#letterToggle');if(lt)lt.classList.toggle('on',!!data.letters.enabled);
   const hint=$('#letterHint');
   if(hint)hint.style.display=data.letters.enabled?'none':'block';
+  /* 频率菜单：高亮当前选项 */
+  const fm=$('#letterFreqMenu');
+  if(fm){
+    const LABELS={high:'高 · 20~30 轮一封',mid:'中 · 30~50 轮一封',low:'低 · 50~70 轮一封',off:'不生成'};
+    const cur=data.letters.freq||'mid';
+    fm.querySelectorAll('.item').forEach(d=>{
+      const v=d.getAttribute('onclick').match(/setLetterFreq\('(\w+)'\)/);
+      if(v)d.style.fontWeight=(v[1]===cur)?'700':'400';
+    });
+    fm.insertAdjacentHTML?null:0;
+  }
+}
+function toggleLetterFreqMenu(){
+  const m=$('#letterFreqMenu');
+  if(m){const mm=m.parentElement;const open=m.classList.toggle('open');if(open)mm.classList.add('m-open');else mm.classList.remove('m-open')}
+}
+function setLetterFreq(f){
+  data.letters.freq=f;
+  data.letters.enabled=(f!=='off');   /* “不生成”即关闭信件，其余档位即开启 */
+  save();renderLetters();
+  const m=$('#letterFreqMenu');if(m)m.classList.remove('open');
+  const map={high:'高频率（20~30 轮一封）',mid:'中频率（30~50 轮一封）',low:'低频率（50~70 轮一封）',off:'不再生成新信件'};
+  snack('来信频率：'+map[f]);
 }
 let favViewId=null;
 function openFavModal(){
@@ -6946,11 +7109,15 @@ async function genLetter(agent,extraReq){
 }
 async function checkLetterTrigger(agent){
   if(!agent||!data.letters.enabled)return;
+  const freq=data.letters.freq&&data.letters.enabled!==false?data.letters.freq:'mid';
+  if(freq==='off')return;   /* 关闭来信 */
   const total=(data.chats[agent.id]||[]).filter(m=>m.type==='text'&&m.role==='user').length;
   const key=agent.id;
-  if(!data.letters.nextAt[key])data.letters.nextAt[key]=total+20+Math.floor(Math.random()*31);
+  const rnd=(lo,hi)=>lo+Math.floor(Math.random()*(hi-lo+1));
+  const step=freq==='high'?rnd(20,30):(freq==='low'?rnd(50,70):rnd(30,50));
+  if(!data.letters.nextAt[key])data.letters.nextAt[key]=total+step;
   if(total<data.letters.nextAt[key])return;
-  data.letters.nextAt[key]=total+20+Math.floor(Math.random()*31);
+  data.letters.nextAt[key]=total+step;
   save();
   try{
     const l=await genLetter(agent);
@@ -7858,6 +8025,9 @@ document.addEventListener('focusout',function(e){
 
 /* ===== 记忆APP ===== */
 function renderMemoryApp(){
+  /* 若上次停留在详情页（memGrid 被替换掉），先归位到九宫格，避免 renderMemGrid 拿到空容器而报错 */
+  const mm=$('#memMemory');
+  if(mm&&!$('#memGrid'))mm.innerHTML='<div class="mem-grid" id="memGrid"></div>';
   renderMemSettings();
   renderMemGrid();
   renderMemSearch();
@@ -7943,12 +8113,12 @@ function favMsgHTML(m){
 }
 function renderMemSettings(){
   const ms=data.memorySettings||{};
-  $('#memScanRounds').value=ms.scanRounds||12;
-  $('#memScanCount').value=ms.scanCount||10;
-  $('#memAutoSummary').classList.toggle('on',!!ms.autoSummary);
-  $('#memIntervalRow').style.display=ms.autoSummary?'flex':'none';
-  $('#memSummaryInterval').value=ms.summaryInterval||10;
-  $('#memPrompt').value=ms.prompt||'';
+  const eRounds=$('#memScanRounds');if(eRounds)eRounds.value=ms.scanRounds||12;
+  const eCount=$('#memScanCount');if(eCount)eCount.value=ms.scanCount||10;
+  const eAuto=$('#memAutoSummary');if(eAuto)eAuto.classList.toggle('on',!!ms.autoSummary);
+  const eIv=$('#memIntervalRow');if(eIv)eIv.style.display=ms.autoSummary?'flex':'none';
+  const eInt=$('#memSummaryInterval');if(eInt)eInt.value=ms.summaryInterval||10;
+  const ePrompt=$('#memPrompt');if(ePrompt)ePrompt.value=ms.prompt||'';
 }
 function memSaveSettings(){
   const ms=data.memorySettings=data.memorySettings||{};
@@ -7967,7 +8137,7 @@ function memResetPrompt(){
   snack('已重置为默认提示词');
 }
 function renderMemGrid(){
-  const grid=$('#memGrid');
+  const grid=$('#memGrid');if(!grid)return;   /* 容器可能已被详情页替换等，避免空引用报错 */
   const agents=data.agents.filter(a=>data.memories[a.id]&&data.memories[a.id].length>0);
   if(!agents.length){grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--ink-soft)">暂无已总结记忆的智能体，继续聊天吧</div>';return}
   grid.innerHTML=agents.map(a=>{
@@ -7988,7 +8158,7 @@ function renderMemSearch(){
   input.oninput=function(){memDoSearch(this.value)};
 }
 function memDoSearch(q){
-  const results=$('#memSearchResults');
+  const results=$('#memSearchResults');if(!results)return;   /* 容器不存在时直接返回，避免 innerHTML 报错 */
   if(!q||!q.trim()){results.innerHTML='<div style="padding:10px 0;color:var(--ink-soft)">输入关键词开始搜索（支持 1 个字符）</div>';return}
   q=q.trim();
   const hits=[];
@@ -8025,6 +8195,7 @@ function memJumpTo(agentId,idx){
 let memDetailAgentId=null;
 function memOpenDetail(agentId){
   memDetailAgentId=agentId;
+  const panel=$('#memMemory');if(!panel)return;   /* 容器不存在则静默返回，避免内空引用 */
   const agent=data.agents.find(a=>a.id===agentId);
   if(!agent)return;
   const mems=data.memories[agentId]||[];
@@ -8055,7 +8226,7 @@ function memGenerateSummary(agentId){
   const prompt=ms.prompt||'请对以上对话历史进行总结…';
   const msgs=data.chats[agentId]||[];
   const lastRound=data.memoryRounds[agentId]||0;
-  const newMsgs=msgs.filter(m=>m.round&&m.round>lastRound);
+  const newMsgs=msgs.filter(m=>!m.hidden&&m.round&&m.round>lastRound);
   if(!newMsgs.length){snack('没有未总结的新内容');return}
   const text=newMsgs.slice(-60).map(m=>'['+(m.role==='user'?'用户':'ta')+'] '+(m.content||'')).join('\n');
   if(!text.trim()){snack('没有可总结的内容');return}
@@ -9599,9 +9770,11 @@ function buildGenPrompt(agent,sceneText){
   const negative=((pp&&pp.negative)||g.negative||'').trim();
   const seg=[];
   if(positive)seg.push(positive);
-  if(agent&&agent.appearancePrompt&&agent.appearancePrompt.trim())seg.push(agent.appearancePrompt.trim());
-  if(sceneText&&sceneText.trim())seg.push(sceneText.trim());
-  return {prompt:seg.filter(Boolean).join('，'),negative,size:g.size||'square'};
+  if(agent&&agent.appearancePrompt&&agent.appearancePrompt.trim())seg.push(agent.appearancePrompt.replace(/\s+/g,' ').trim());
+  if(sceneText&&sceneText.trim())seg.push(sceneText.replace(/\s+/g,' ').trim());
+  let prompt=seg.filter(Boolean).join('，');
+  /* 容貌/场景/正负面提示词要完整保留，不再截断；接口超限由 genImageCall 兜底 */
+  return {prompt,negative,size:g.size||'square'};
 }
 /* 调用生图 API：优先 OpenAI 兼容 /images/generations，其次 text_to_image */
 async function genImageCall(preset,prompt,negative,size){
