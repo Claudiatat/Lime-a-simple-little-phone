@@ -313,7 +313,7 @@ body{
 .mk-opt-btn.danger{background:#fbeae6;color:#b06457}
 
 /* ========== 美化层：聊天 ========== */
-.msg-list{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.msg-list{flex:1;overflow-y:auto;padding:16px 14px;display:flex;flex-direction:column;align-items:flex-start;gap:10px;-webkit-overflow-scrolling:touch;will-change:scroll-position}
 .msg-row{display:flex;align-items:flex-end;gap:8px;max-width:82%;width:fit-content;min-width:0}
 .msg-row.user{align-self:flex-end;flex-direction:row-reverse}
 .msg-row.ai{align-self:flex-start}
@@ -1113,17 +1113,13 @@ button,.seg-opt,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-
 .gal-panel{display:none;flex-direction:column;flex:1;min-height:0}
 .gal-panel.on{display:flex}
 .gal-scroll{flex:1;overflow-y:auto;padding:12px 14px}
-.gal-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
-/* 双栏瀑布流：CSS columns 自动按高度排列成两列，无需 JS 计算跨度 */
-.gal-grid.waterfall{display:block;columns:2;column-gap:10px}
-.gal-grid.waterfall .gal-cell{display:inline-block;width:100%;margin:0 0 10px;break-inside:avoid;page-break-inside:avoid}
-.gal-grid.waterfall .gal-cell-img{width:100%;height:auto}
-.gal-grid.waterfall .gal-cell-img .gal-img{width:100%;height:auto}
-.gal-cell{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
-.gal-cell-img{background:var(--field-bg);display:flex;align-items:center;justify-content:center;overflow:hidden}
-.gal-cell-img .gal-cell-ph{font-size:28px;opacity:.5}
-.gal-cell-img img.gal-img{width:100%;height:100%;object-fit:cover;display:block}
-.gal-cell-img .gal-textimg{width:100%;height:100%;box-sizing:border-box;padding:10px;font-size:11px;line-height:1.6;color:#5b4a32;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;min-height:140px}
+/* 双栏瀑布流：CSS columns 按高度自动排成左右两列，图片保持原始宽高比，不裁切 */
+.gal-grid{columns:2;column-gap:10px}
+.gal-cell{display:inline-block;width:100%;margin:0 0 10px;break-inside:avoid;page-break-inside:avoid;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;box-sizing:border-box}
+.gal-cell-img{background:var(--field-bg);overflow:hidden}
+.gal-cell-img .gal-cell-ph{font-size:28px;opacity:.5;text-align:center;padding:34px 0}
+.gal-cell-img img.gal-img{width:100%;height:auto;display:block}
+.gal-cell-img .gal-textimg{width:100%;box-sizing:border-box;padding:10px;font-size:11px;line-height:1.6;color:#5b4a32;display:flex;align-items:center;justify-content:center;text-align:center;overflow:hidden;min-height:140px}
 .gal-meta{padding:8px 10px}
 .gal-name{font-size:12.5px;font-weight:600;color:var(--ink);margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .gal-note{font-size:11.5px;color:var(--ink-soft);margin-bottom:5px;line-height:1.5;white-space:normal;word-break:break-word;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -3988,7 +3984,7 @@ function createMsgEl(m,animate){
     if(animate)playVoiceAnim(div.querySelector('.voice-bar'));
   }else if(m.type==='photo'){
     const div=document.createElement('div');div.className='msg '+m.role+' photo';
-    const img=m.img?'<img class="pm-img" src="'+m.img+'" alt="" referrerpolicy="no-referrer">':'';
+    const img=m.img?'<img class="pm-img" src="'+m.img+'" alt="" referrerpolicy="no-referrer" decoding="async">':'';
     div.innerHTML=(m.quote?quoteHTML(m.quote):'')+'<div class="photo-frame">'+img+'<div class="photo-time">'+escapeHtml(m.time||'')+'</div><div class="photo-body">'+escapeHtml(m.content)+'</div><div class="photo-loc">'+escapeHtml(m.location||'')+'</div></div>';
     wrap.appendChild(div);
   }else if(m.type==='transfer'){
@@ -5053,52 +5049,81 @@ function compressDataUrl(dataUrl,max=1200,q=.85){
     img.src=dataUrl;
   });
 }
-/* 识图 API 通用封装：返回图片中文描述；未配置或失败时返回空字符串 */
+/* 识别图片用的接口配置：优先用「独立识图接口」，留空则回退到主 API 预设
+   （包括自定义请求头与 CORS 代理）。这样只配了主 API 的用户也能让模型直接“看图”。 */
+function resolveVision(opt){
+  const p=activePreset()||{};
+  const vUrl=(data.settings.visionUrl||'').trim();
+  const vKey=(data.settings.visionKey||'').trim();
+  if(vUrl&&vKey){
+    return {url:vUrl,key:vKey,model:data.settings.visionModel||(opt&&opt.model)||p.model||'gpt-4o-mini',headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
+  }
+  /* 独立识图未配置 → 用主 API 预设（兼容自定义鉴权头） */
+  const headers={};
+  if(p.headers)Object.assign(headers,parseHeadersStr(p.headers));
+  return {url:p.url||'',key:p.key||'',model:(opt&&opt.model)||p.model||'gpt-4o-mini',headers:Object.keys(headers).length?headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
+}
+function buildVisionHeaders(v){
+  const h=v.headers?Object.assign({},v.headers):{};
+  if(!h['Content-Type'])h['Content-Type']='application/json';
+  if(!('Authorization' in h)&&v.key)h.Authorization='Bearer '+v.key;
+  return h;
+}
+/* 识图 API 通用封装：返回图片中文描述；未配置且主 API 也不可用时返回空字符串 */
 async function visionDescribeImage(dataUrl){
-  const url=(data.settings.visionUrl||'').trim(),key=(data.settings.visionKey||'').trim();
-  if(!url||!key||!dataUrl)return '';
-  const model=data.settings.visionModel||(activePreset()||{}).model||'gpt-4o-mini';
+  if(!dataUrl)return '';
+  const v=resolveVision(null);
+  if(!v.url)return '';
   /* 送识图前先压缩，避免超大图片被接口拒收或触发超时 */
   const src=await compressDataUrl(dataUrl,1200,.85)||dataUrl;
-  try{
-    const d=await relayFetch(normalizeUrl(url),'/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},
-      body:JSON.stringify({model,max_tokens:200,messages:[{role:'user',content:[
-        {type:'text',text:'请用中文简短描述这张图片的内容、风格与人物/主体（一两句话）。'},
-        {type:'image_url',image_url:{url:src}}
-      ]}]}),
-      corsProxy:((activePreset()||{}).corsProxy)||''
-    });
-    return (d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta)&&((d.choices[0].message||d.choices[0].delta).content||'')||'').trim();
-  }catch(e){return ''}
+  /* 接口地址可能已含 /v1，也可能没带，逐一尝试直到有返回 */
+  for(const base of getCandidates(v.url)){
+    try{
+      const d=await relayFetch(base,'/chat/completions',{
+        method:'POST',
+        headers:buildVisionHeaders(v),
+        body:JSON.stringify({model:v.model,max_tokens:200,messages:[{role:'user',content:[
+          {type:'text',text:'请用中文简短描述这张图片的内容、风格与人物/主体（一两句话）。'},
+          {type:'image_url',image_url:{url:src}}
+        ]}]}),
+        corsProxy:v.corsProxy
+      });
+      const out=(d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta)&&((d.choices[0].message||d.choices[0].delta).content||'')||'').trim();
+      if(out)return out;
+    }catch(e){}
+  }
+  return '';
 }
-/* 用识图 API「直接看图并生成回复」：不再叠加主 API。
-   未配置识图 API 或调用失败返回 null，由调用方回退到主 API 流程。 */
+/* 用识图接口「直接看图并生成回复」：不再叠加主 API。
+   未配置识图且主 API 也不可用、或调用失败时返回 null，由调用方回退到纯文字主 API 流程。 */
 async function visionChatReply(opt,imageDataUrls,prompt){
-  const url=(data.settings.visionUrl||'').trim(),key=(data.settings.visionKey||'').trim();
-  if(!url||!key||!opt)return null;
-  const model=data.settings.visionModel||opt.model||'gpt-4o-mini';
+  if(!opt)return null;
+  const v=resolveVision(opt);
+  if(!v.url)return null;
   const imgs=await Promise.all((imageDataUrls||[]).map(async d=>{
     const c=await compressDataUrl(d,1000,.82)||d;   /* 压缩后再送，避免超大图被拒 */
     return {type:'image_url',image_url:{url:c}};
   }));
   if(!imgs.length)return null;
-  try{
-    const d=await relayFetch(normalizeUrl(url),'/chat/completions',{
-      method:'POST',
-      headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},
-      body:JSON.stringify({model,max_tokens:300,messages:[
-        {role:'system',content:opt.system||'你是一位真实的朋友，用自然口语回应。'},
-        {role:'user',content:[{type:'text',text:prompt},...imgs]}
-      ]}),
-      corsProxy:opt.corsProxy||''
-    });
-    const msg=d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta);
-    const content=msg&&(msg.content!=null?msg.content:(msg.delta?msg.delta.content:''))||'';
-    const t=String(content).trim();
-    return t||null;
-  }catch(e){return null}
+  /* 地址可能已含 /v1 或没带，逐一尝试直到拿到非空回复 */
+  for(const base of getCandidates(v.url)){
+    try{
+      const d=await relayFetch(base,'/chat/completions',{
+        method:'POST',
+        headers:buildVisionHeaders(v),
+        body:JSON.stringify({model:v.model,max_tokens:300,messages:[
+          {role:'system',content:opt.system||'你是一位真实的朋友，用自然口语回应。'},
+          {role:'user',content:[{type:'text',text:prompt},...imgs]}
+        ]}),
+        corsProxy:v.corsProxy
+      });
+      const msg=d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta);
+      const content=msg&&(msg.content!=null?msg.content:(msg.delta?msg.delta.content:''))||'';
+      const t=String(content).trim();
+      if(t)return t;
+    }catch(e){}
+  }
+  return null;
 }
 function openGiftModal(){closeChatMore();$('#gmName').value='';$('#gmDesc').value='';$('#gmNote').value='';$('#giftModal').classList.add('open')}
 
@@ -5116,12 +5141,14 @@ function sendPhoto(){
   cancelQuote();save();$('#photoModal').classList.remove('open');
   snack('已发送文字图，点右下角发送键让 ta 回复');
 }
-function sendCameraPhoto(){
+async function sendCameraPhoto(){
   const pv=$('#cmPreview');
-  const img=pv&&pv.getAttribute('src')||'';
+  const img=(pv&&pv.getAttribute('src'))||'';
   const asAvatar=$('#cmAsAvatar')&&$('#cmAsAvatar').checked;
   if(!img){snack('请先选择或拍摄一张图片');return}
-  addMsg(currentAgentId,{role:'user',type:'photo',content:'',img,time:'',location:'',quote:quoteTarget,asAvatar:asAvatar,avatarHandled:false});
+  /* 发送前压缩：原图 base64 可能数 MB，直接入库会撑爆 localStorage，也会让聊表滑动时反复解码导致掉帧 */
+  const stored=await compressDataUrl(img,1280,.82)||img;
+  addMsg(currentAgentId,{role:'user',type:'photo',content:'',img:stored,time:'',location:'',quote:quoteTarget,asAvatar:asAvatar,avatarHandled:false});
   cancelQuote();save();$('#cameraModal').classList.remove('open');
   /* 换头像/普通图片：仅写入对话上下文，由用户点右下角「发送」键后才触发 ta 回复（含换头像决策） */
   snack(asAvatar?'图片已发送，点右下角发送键让 ta 决定是否换头像':'图片已发送，点右下角发送键让 ta 回复');
@@ -10035,9 +10062,9 @@ function renderGenImage(m,card){
   const src=m.genImg||'';
   const isData=src.indexOf('data:')===0;
   card.innerHTML='<div class="gen-img-wrap">'+
-    '<img class="gen-img" src="'+src+'" alt=""'+(isData?'':' referrerpolicy="no-referrer"')+'>'+
+    '<img class="gen-img" src="'+src+'" alt="" decoding="async"'+(isData?'':' referrerpolicy="no-referrer"')+'>'+
     '<div class="gen-ops">'+
-      '<button class="gop jelly-btn" onclick="genFavMsg(this)">♥ 收藏</button>'+
+      '<button class="gop jelly-btn" onclick="genFavMsg(this)">'+(m.favorited?'♥ 已收藏':'♥ 收藏')+'</button>'+
       '<button class="gop jelly-btn" onclick="genRegenMsg(this)">🔄 重新生成</button>'+
       '<button class="gop jelly-btn" onclick="genDlMsg(this)">⬇ 下载</button>'+
     '</div></div>';
@@ -10051,7 +10078,7 @@ function renderGenFallback(m,card,err){
     '<div class="gen-textimg" style="background:linear-gradient(135deg,#f6efe2,#efe3cd)">'+escapeHtml(m.content||'')+'</div>'+
     '<div class="gen-ops">'+
       '<button class="gop jelly-btn" onclick="genRetryMsg(this)">🔄 重试</button>'+
-      '<button class="gop jelly-btn" onclick="genFavMsg(this)">♥ 收藏文字图</button>'+
+      '<button class="gop jelly-btn" onclick="genFavMsg(this)">'+(m.favorited?'♥ 已收藏':'♥ 收藏文字图')+'</button>'+
     '</div></div>';
 }
 /* 备份导入后：原图被剔除（备份不含图片以省内存），且生图成功时文字图已随原图删除 → 原图已无法恢复，显示「图片缺失」 */
@@ -10075,9 +10102,14 @@ function genRegenMsg(btn){
 function genRetryMsg(btn){genRegenMsg(btn)}
 async function genFavMsg(btn){
   const m=genMsgFromBtn(btn);if(!m)return;
+  if(m.favorited){snack('已经收藏过了');return}
+  /* 先点亮按钮并落盘状态，给用户即时反馈；大图入库放后面异步做 */
+  m.favorited=true;
+  save();
+  if(btn)btn.textContent='♥ 已收藏';
   const agent=data.agents.find(a=>a.id===currentAgentId)||data.agents[0];
   data.gallery.favorites=data.gallery.favorites||[];
-  if(m.id&&data.gallery.favorites.some(f=>f.msgId===m.id)){snack('这条已经在收藏里了');return}
+  if(m.id&&data.gallery.favorites.some(f=>f.msgId===m.id)){snack('已经收藏过了');return}
   const id='fav_'+Date.now();
   const isData=m.genImg&&m.genImg.indexOf('data:')===0;
   const fav={id,msgId:m.id||null,agentName:agent?agent.name:'',prompt:m.genPrompt||m.content||'',ts:Date.now(),textImage:!m.genOk};
@@ -10107,12 +10139,10 @@ function renderGallery(){
 async function renderGalGrid(){
   const box=$('#galGrid');if(!box)return;
   const favs=(data.gallery.favorites||[]).slice().reverse();
-  if(!favs.length){box.classList.remove('waterfall');box.innerHTML='<div class="gal-empty">还没有收藏的图片<br>在聊天里收到 ta 的生图后，点「♥ 收藏」就会出现在这里</div>';return}
-  /* 两列瀑布流：以 6px 为行单位，图片太高就在 grid-row-end 上跨多行（row dense 自动回填空隙） */
-  box.classList.add('waterfall');
-  box.style.gridAutoRows='6px';
-  box.innerHTML=favs.map(f=>
-    '<div class="gal-cell" data-id="'+f.id+'" style="grid-row-end:span 16">'+
+  if(!favs.length){box.innerHTML='<div class="gal-empty">还没有收藏的图片<br>在聊天里收到 ta 的生图后，点「♥ 收藏」就会出现在这里</div>';return}
+  /* 两列瀑布流：CSS columns 自动按高度排列，图片保持原始宽高比，无需 JS 计算跨行跨度 */
+  box.innerHTML='<div class="gal-grid">'+favs.map(f=>
+    '<div class="gal-cell" data-id="'+f.id+'">'+
     '<div class="gal-cell-img"><div class="gal-cell-ph">🖼️</div></div>'+
     '<div class="gal-meta">'+
       '<div class="gal-name">'+escapeHtml(f.agentName||'ta')+'</div>'+
@@ -10123,35 +10153,21 @@ async function renderGalGrid(){
         '<button class="mini-btn jelly-btn" onclick="galDownload(\''+f.id+'\')">下载</button>'+
         '<button class="mini-btn danger jelly-btn" onclick="galRemove(\''+f.id+'\')">取消</button>'+
       '</div></div></div>'
-  ).join('');
+  ).join('')+'</div>';
   /* 懒迁移：老收藏里的 dataURL 大图搬进 IndexedDB，避免撑爆 localStorage */
   favs.forEach(f=>{if(f.img&&f.img.indexOf('data:')===0){genDBPut(f.id,f.img).then(()=>{f.img='';save()}).catch(()=>{});}});
   favs.forEach(f=>{
     const cell=box.querySelector('.gal-cell[data-id="'+f.id+'"] .gal-cell-img');
-    if(f.textImage){cell.innerHTML='<div class="gal-textimg" style="background:linear-gradient(135deg,#f6efe2,#efe3cd)">'+escapeHtml((f.prompt||'').slice(0,140))+'</div>';setGalSpan(box,f,cell.offsetWidth,cell.offsetWidth);return}
+    if(!cell)return;
+    if(f.textImage){cell.innerHTML='<div class="gal-textimg" style="background:linear-gradient(135deg,#f6efe2,#efe3cd)">'+escapeHtml((f.prompt||'').slice(0,140))+'</div>';return}
     galLoadFavImg(f).then(src=>{
-      if(!cell)return;
       if(!src)return;
       const img=new Image();
-      img.onload=()=>{
-        cell.innerHTML='<img class="gal-img" src="'+src+'" alt=""'+(src.indexOf('data:')===0?'':' referrerpolicy="no-referrer"')+'>';
-        const w=cell.offsetWidth;
-        setGalSpan(box,f,w,Math.round(w*img.naturalHeight/Math.max(1,img.naturalWidth)));
-      };
-      img.onerror=()=>setGalSpan(box,f,cell.offsetWidth,cell.offsetWidth);
+      img.onload=()=>{cell.innerHTML='<img class="gal-img" src="'+src+'" alt="" decoding="async"'+(src.indexOf('data:')===0?'':' referrerpolicy="no-referrer"')+'>'};
+      img.onerror=()=>{cell.innerHTML='<div class="gal-cell-ph">🖼️</div>'};
       img.src=src;
     });
   });
-}
-/* 依据目标高度把瀑布流格子的行跨距更新为对应 span */
-function setGalSpan(box,f,w,h){
-  const cell=box.querySelector('.gal-cell[data-id="'+f.id+'"]');
-  if(!cell||!w)return;
-  /* 图片高度 + 下方元信息(名字/备注/按钮)预留 ~56px，避免 object-fit 裁切过狠 */
-  const target=h+(f.note?78:56);
-  const span=Math.max(14,Math.round(target/6));
-  const delta=span-14;
-  if(delta!==0)cell.style.gridRowEnd='span '+span;
 }
 async function galLoadFavImg(f){
   if(f.textImage)return null;
