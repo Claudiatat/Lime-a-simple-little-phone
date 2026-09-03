@@ -9998,14 +9998,22 @@ async function genLoadImage(m,card){
   const {prompt,negative,size}=buildGenPrompt(agent,m.content);
   try{
     const r=await genImageCall(pp,prompt,negative,size);
-    m.genImg=r.dataUrl||r.url;
+    let src=r.dataUrl||r.url;
+    /* 压缩后再存：生图返回的高清 base64 一张可达 1~3MB，直接写 localStorage 会触发 5MB 配额错误，
+       保存失败会被下面的 catch 误判成“生图失败”（测试弹窗不保存所以没事，聊天里要保存所以失败）。
+       这里压到 ≤1024px 再入库，与头像/识图同一套做法，解决“测试能生、聊天不能生”的问题。 */
+    if(src&&src.indexOf('data:')===0){
+      const c=await compressDataUrl(src,1024,.85);
+      if(c)src=c;
+    }
+    m.genImg=src;
     m.genPrompt=prompt;
     m.genOk=true;delete m.genErr;
-    save();
+    try{save()}catch(_e){snack('图片已生成，但本地存储空间不足，刷新后可能看不到原图')}
     renderGenImage(m,card);
   }catch(e){
     m.genOk=false;m.genErr=friendlyError(e);
-    save();
+    try{save()}catch(_e){}
     renderGenFallback(m,card,m.genErr);
   }
 }
