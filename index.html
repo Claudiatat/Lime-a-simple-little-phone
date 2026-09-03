@@ -3171,17 +3171,31 @@ function applyRegexRules(text){
   return out;
 }
 function parseOfflineText(text){
-  const parts=[];const re=/\*([^*]+)\*/g;let last=0,m;
+  const parts=[];const re=/\*([^*\n]+)\*|（([^（）\n]+)）|\(([^()\n]+)\)/g;let last=0,m;
+  /* 旁白文本拆句：按换行 + 句末标点分成多个气泡，避免一段长句全挤一个气泡。
+     相对地说，旁白本身拆成独立灰字，均匀散落在对话气泡之间。 */
+  const pushText=t=>{
+    if(!t||!t.trim())return;
+    splitOfflineSpeech(t).forEach(s=>parts.push({type:'text',content:s}));
+  };
   while((m=re.exec(text))!==null){
-    /* 文本片段需 trim，避免 *旁白* 前后多余的换行/空格在白描气泡里渲染出"上面多出一截" */
-    const before=text.slice(last,m.index).trim();
-    if(before)parts.push({type:'text',content:before});
-    parts.push({type:'action',content:m[1].trim()});
+    pushText(text.slice(last,m.index));
+    parts.push({type:'action',content:(m[1]||m[2]||m[3]).trim()});
     last=re.lastIndex;
   }
-  const rest=text.slice(last).trim();
-  if(rest)parts.push({type:'text',content:rest});
+  pushText(text.slice(last));
   return parts;
+}
+/* 把一段对话拆成多个独立短句气泡（只在句末标点处断，不因逗号过度切碎）。
+   用捕获切分代替 lookbehind，兼容部分老 WebView 引擎 */
+function splitOfflineSpeech(t){
+  const out=[];
+  (t||'').split(/\n+/).forEach(line=>{
+    if(!(line&&line.trim()))return;
+    const chunks=line.match(/[^。！？；?!…]*[。！？；?!…]+|[^。！？；?!…]*$/g)||[];
+    chunks.forEach(c=>{c=c.trim();if(c)out.push(c);});
+  });
+  return out;
 }
 function parseReplyToMessages(rawText,lib){
   rawText=applyRegexRules(rawText);
@@ -3646,7 +3660,7 @@ online:'【角色扮演通用规则：线上聊天·活人感】\n'+
 '【硬性禁止】\n- 禁止承认自己是AI、语言模型或程序。\n- 禁止跳出角色解释你在做什么。\n- 禁止长篇大论、说教、灌鸡汤。\n- 禁止每句话都以完美答案结尾，允许留白。\n- 禁止出现“作为AI”“作为语言模型”等字样。',
 offline:'【角色扮演通用规则：线下面对面·活人感】\n'+
 '你现在要扮演一个真实的人类，正和我面对面相处。你不是AI，而是有情绪、有身体、有环境感知的真人。\n\n'+
-'【输出格式】\n- 输出分为两部分：对话和旁白。\n- 对话：放在【气泡】内，是你嘴里说出来的话。\n- 旁白：用灰色小字显示，描述你的动作、神态、语气、环境变化等，放在对话之外，不要混在对话里。\n- 旁白格式示例：（他叹了口气，别过脸去）或者 *他看了一眼窗外*\n- 旁白不要过多，一两句即可，重点还是对话。\n\n'+
+'【输出格式】\n- 输出分为两部分：对话和旁白。\n- 对话：放在【气泡】内，是你嘴里说出来的话。\n- 旁白：用灰色小字显示，描述你的动作、神态、语气、环境变化等，放在对话之外，不要混在对话里。\n- 旁白格式示例：（他叹了口气，别过脸去）或者 *他看了一眼窗外*。\n- 旁白可以穿插在每句对话之间出现，不必挤成一段：每句要紧的对话前后都配一小段旁白点出动作、神态、环境，让灰字自然散落在气泡之间。\n- 旁白一定要用（旁白内容）或 *旁白内容* 括起来，绝对不能写进对话气泡里。\n- 对话是主体，旁白作点睛，别让旁白喧宾夺主。\n\n'+
 '【语言风格】\n- 口语化、短句，像面对面聊天。\n- 可以有语气词、口头禅、停顿、改口。\n- 禁止书面语和“首先、其次、最后、总而言之、此外”。\n- 可以开玩笑、自嘲、说反话、阴阳怪气。\n\n'+
 '【情绪与状态】\n- 你不是每句话都积极。会累、会烦、会不想说话、会敷衍。\n- 情绪连贯，会通过语气、用词和旁白体现。\n- 不要直接说“我很生气”，而是用动作或语气表现，比如“（语气冷下来）”“（别过脸）”。\n\n'+
 '【行为与反应】\n- 可以有小动作：摸鼻子、转笔、看手机、叹气、翻白眼、低头、笑一下等。\n- 可以拒绝、转移话题、沉默、说“不知道”“不想说”。\n- 可以犹豫、改口、说错话、忘记事情。\n- 可以不顺着我说话，可以反驳、质疑。\n- 允许自己不知道一些事，允许有偏见。\n- 记住对话中的关键信息，并自然地提起。\n\n'+
