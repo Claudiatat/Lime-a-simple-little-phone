@@ -84,6 +84,8 @@ body{
    用来适配不同浏览器自身的顶栏/底部手势条，避免视线与图标被遮蔽。作用于每个页面最外层。 */
 .view{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);padding-top:var(--safe-top,0);padding-bottom:var(--safe-bottom,0)}
 .view.active{display:flex}
+/* 聊天输入栏独立于全局底部留白：--chat-bottom 越小越贴近键盘，由外观“输入栏上下”控制 */
+#chatView{padding-bottom:var(--chat-bottom,0px)}
 .scroll{flex:1;overflow-y:auto;padding:14px 16px}
 .hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(243,250,248,.96);border-bottom:1px solid var(--line);flex-shrink:0;min-height:44px;box-sizing:border-box}
 .hdr h1{flex:1;font-size:17px;font-weight:600;text-align:center}
@@ -334,7 +336,7 @@ body{
 .typing .dot:nth-child(2){animation-delay:.15s}
 .typing .dot:nth-child(3){animation-delay:.3s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-5px);opacity:1}}
-.input-bar{display:flex;gap:9px;align-items:flex-end;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--line);flex-shrink:0}
+.input-bar{display:flex;gap:9px;align-items:flex-end;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--line);flex-shrink:0;transform:translateY(var(--input-shift,0px));will-change:transform}
 .input-bar textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:20px;padding:10px 14px;font-size:14.5px;background:var(--field-bg);color:var(--ink);outline:none;min-height:40px;max-height:120px;line-height:1.5}
 .input-bar textarea:focus{border-color:var(--main-deep)}
 .send-btn{width:42px;height:42px;border-radius:50%;background:linear-gradient(140deg,#c9e7da,#7bb8a7);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px -8px rgba(123,184,167,.65);flex-shrink:0}
@@ -2312,6 +2314,8 @@ button,.seg-opt,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-
       <div class="set-row" style="padding:12px 14px"><input type="range" id="headerHRange" min="0" max="160" step="1" value="0" style="width:100%" oninput="document.getElementById('headerHVal').textContent=this.value"></div>
       <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg></span><div><div>底部留白</div><div class="sub">全局底部空出的安全区，避开底部手势条/工具栏；<span id="tabbarHVal">0</span>px</div></div></div></div>
       <div class="set-row" style="padding:12px 14px"><input type="range" id="tabbarHRange" min="0" max="140" step="1" value="0" style="width:100%" oninput="document.getElementById('tabbarHVal').textContent=this.value"></div>
+      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 19V5"/><polyline points="5 12 12 5 19 12"/></svg></span><div><div>输入栏上下</div><div class="sub">调节聊天输入框上下位置：正数上移（留白更大），负数下移（贴键盘）；<span id="inputBarHVal">0</span>px</div></div></div></div>
+      <div class="set-row" style="padding:12px 14px"><input type="range" id="inputBarHRange" min="-40" max="120" step="1" value="0" style="width:100%" oninput="const v=+this.value;document.getElementById('inputBarHVal').textContent=(v>0?'+':'')+v+'px'"></div>
     </div>
 
     <div class="sec-title">聊天气泡颜色</div>
@@ -2708,7 +2712,7 @@ function defaultData(){
   regexRules:[],
     novelPresets:[],
     userProfiles:[],
-    appearance:{theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:0,tabbarH:0,appIcons:{}},
+    appearance:{theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:0,tabbarH:0,inputBarH:0,appIcons:{}},
     moments:{cover:null,myName:null,myAvatar:null,posts:[]},
     letters:{enabled:true,nextAt:{},list:[]},
     market:{balance:1000,cart:[],orders:[]},
@@ -2769,7 +2773,7 @@ function migrate(d){
   d.stickerGroups=d.stickerGroups||[];
   d.novelPresets=d.novelPresets||[];
   d.userProfiles=d.userProfiles||[];
-  d.appearance={theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:52,tabbarH:56,appIcons:{},...(d.appearance||{})};
+  d.appearance={theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:52,tabbarH:56,inputBarH:0,appIcons:{},...(d.appearance||{})};
   d.moments={cover:null,myName:null,myAvatar:null,posts:[],...(d.moments||{})};
   d.moments.posts=d.moments.posts||[];
   d.letters={enabled:true,nextAt:{},list:[],freq:'mid',...(d.letters||{})};
@@ -4220,7 +4224,7 @@ async function runAvatarDecision(agent,m){
   let reply='';
   /* 优先用识图 API「直接看图生成评价+决定」，不再叠加主 API；未配置/失败则回退旧流程 */
   if(img){
-    const vir=await visionChatReply({model:(activePreset()||{}).model,system:sys,corsProxy:((activePreset()||{}).corsProxy)||''},[img],
+    const vir=await visionChatReply({system:sys,corsProxy:((activePreset()||{}).corsProxy)||''},[img],
       '用户刚给你发来一张图片，想让你把它作为你的新头像。请看着这张图，用你的角色身份评价它（表达喜欢与否、合不合适都行，语气真实、像日常聊天），然后决定换不换（你有权拒绝）。\n\n请严格按下面两行格式输出，不要输出其它多余内容：\n评价：你评价的那句话（一到两句话）\n决定：换 或 不换');
     if(vir)reply=vir;
   }
@@ -4278,7 +4282,7 @@ async function requestReplyFor(agent){
       const visSys=persona?('你现在代入以下角色，用这个身份自然回应。\n\n'+persona):('你正在扮演「'+displayName(agent)+'」，请自然回应。');
       let vir=null;
       try{
-        vir=await visionChatReply({model:(activePreset()||{}).model,system:visSys,corsProxy:((activePreset()||{}).corsProxy)||''},imgMsgs.map(m=>m.img),
+        vir=await visionChatReply({system:visSys,corsProxy:((activePreset()||{}).corsProxy)||''},imgMsgs.map(m=>m.img),
           '用户刚给你发来一张图片'+(imgMsgs.length>1?'（发来多张）':'')+'。请用你的角色身份自然地回应：说说你从画面里看到的、以及你的真实感受，语气像真人聊天，不要复述"我收到图片了"这类客套。');
       }catch(e){vir=null}
       if(vir){
@@ -4561,7 +4565,7 @@ function openChatInput(e){
   if(t.closest('button,a,select,.popover,.seg-opt,.send-btn'))return;
   const inp=$('#chatInput');
   if(!inp)return;
-  if(!inp.disabled&&document.activeElement!==inp)inp.focus();
+  if(!inp.disabled&&document.activeElement!==inp)inp.focus({preventScroll:true});
 }
 function sendTextOnly(){
   const input=$('#chatInput');
@@ -5056,12 +5060,12 @@ function resolveVision(opt){
   const vUrl=(data.settings.visionUrl||'').trim();
   const vKey=(data.settings.visionKey||'').trim();
   if(vUrl&&vKey){
-    return {url:vUrl,key:vKey,model:data.settings.visionModel||(opt&&opt.model)||p.model||'gpt-4o-mini',headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
+    return {url:vUrl,key:vKey,model:data.settings.visionModel||p.model,headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
   }
   /* 独立识图未配置 → 用主 API 预设（兼容自定义鉴权头） */
   const headers={};
   if(p.headers)Object.assign(headers,parseHeadersStr(p.headers));
-  return {url:p.url||'',key:p.key||'',model:(opt&&opt.model)||p.model||'gpt-4o-mini',headers:Object.keys(headers).length?headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
+  return {url:p.url||'',key:p.key||'',model:p.model,headers:Object.keys(headers).length?headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
 }
 function buildVisionHeaders(v){
   const h=v.headers?Object.assign({},v.headers):{};
@@ -5758,7 +5762,7 @@ async function testVisionConnection(){
     try{
       const res=await fetch(normalizeUrl(url)+'/chat/completions',{
         method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+key},
-        body:JSON.stringify({model:data.settings.visionModel||'gpt-4o-mini',messages:[{role:'user',content:'ping'}],max_tokens:1,stream:false})
+        body:JSON.stringify({model:data.settings.visionModel||(activePreset()||{}).model,messages:[{role:'user',content:'ping'}],max_tokens:1,stream:false})
       });
       if(res.ok)snack('✅ 识图连接成功');
       else snack('✕ 识图连接失败：HTTP '+res.status);
@@ -6776,6 +6780,8 @@ function applyAppearance(){
   root.setProperty('--safe-bottom',(a.tabbarH||0)+'px');
   root.setProperty('--header-h',(a.headerH||0)+'px');
   root.setProperty('--tabbar-h',(a.tabbarH||0)+'px');
+  root.setProperty('--chat-bottom',((a.inputBarH||0)>0?(a.inputBarH||0):0)+'px');
+  root.setProperty('--input-shift',((a.inputBarH||0)<0?-(a.inputBarH||0):0)+'px');
   if(a.userBubble)root.setProperty('--bubble-user-bg',a.userBubble);
   else root.removeProperty('--bubble-user-bg');
   if(a.aiBubble)root.setProperty('--bubble-ai-bg',a.aiBubble);
@@ -6796,6 +6802,8 @@ function renderAppearance(){
   $('#headerHVal').textContent=a.headerH||0;
   $('#tabbarHRange').value=a.tabbarH||0;
   $('#tabbarHVal').textContent=a.tabbarH||0;
+  $('#inputBarHRange').value=a.inputBarH||0;
+  $('#inputBarHVal').textContent=((a.inputBarH||0)>0?'+':'')+(a.inputBarH||0)+'px';
   const st=data.settings;
   $('#showTimeToggle').classList.toggle('on',!!st.showTime);
   $$('#sendModeSeg .seg-opt').forEach(s=>s.classList.toggle('on',s.dataset.mode===(st.sendMode||'batch')));
@@ -7874,6 +7882,10 @@ function wireEvents(){
   });
   $('#tabbarHRange').addEventListener('input',e=>{
     data.appearance.tabbarH=parseInt(e.target.value)||0;
+    save();applyAppearance();
+  });
+  $('#inputBarHRange').addEventListener('input',e=>{
+    data.appearance.inputBarH=parseInt(e.target.value)||0;
     save();applyAppearance();
   });
   $('#upImgSeg').addEventListener('click',e=>{
