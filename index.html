@@ -84,8 +84,8 @@ body{
    用来适配不同浏览器自身的顶栏/底部手势条，避免视线与图标被遮蔽。作用于每个页面最外层。 */
 .view{position:absolute;inset:0;display:none;flex-direction:column;background:var(--bg);padding-top:var(--safe-top,0);padding-bottom:var(--safe-bottom,0)}
 .view.active{display:flex}
-/* 聊天输入栏独立于全局底部留白：--chat-bottom 越小越贴近键盘，由外观“输入栏上下”控制 */
-#chatView{padding-bottom:var(--chat-bottom,0px)}
+/* 聊天底部留白继承全局 safe-bottom（底栏安全区），输入栏上下调节不再覆盖它，
+   只在开键盘时对输入栏做位移，避免输入栏掉到底栏下方 */
 .scroll{flex:1;overflow-y:auto;padding:14px 16px}
 .hdr{display:flex;align-items:center;gap:8px;padding:10px 14px;background:rgba(243,250,248,.96);border-bottom:1px solid var(--line);flex-shrink:0;min-height:44px;box-sizing:border-box}
 .hdr h1{flex:1;font-size:17px;font-weight:600;text-align:center}
@@ -337,6 +337,8 @@ body{
 .typing .dot:nth-child(3){animation-delay:.3s}
 @keyframes bounce{0%,60%,100%{transform:translateY(0);opacity:.45}30%{transform:translateY(-5px);opacity:1}}
 .input-bar{display:flex;gap:9px;align-items:flex-end;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:var(--paper);border-top:1px solid var(--line);flex-shrink:0;transform:translateY(var(--input-shift,0px));will-change:transform}
+/* 输入栏位移只在开键盘时生效；收起键盘（未聚焦）时归位，避免输入栏掉到底栏下方 */
+#chatView:not(.keyboard-open) .input-bar{transform:none}
 .input-bar textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:20px;padding:10px 14px;font-size:14.5px;background:var(--field-bg);color:var(--ink);outline:none;min-height:40px;max-height:120px;line-height:1.5}
 .input-bar textarea:focus{border-color:var(--main-deep)}
 .send-btn{width:42px;height:42px;border-radius:50%;background:linear-gradient(140deg,#c9e7da,#7bb8a7);color:#fff;display:flex;align-items:center;justify-content:center;box-shadow:0 8px 16px -8px rgba(123,184,167,.65);flex-shrink:0}
@@ -6786,8 +6788,9 @@ function applyAppearance(){
   root.setProperty('--safe-bottom',(a.tabbarH||0)+'px');
   root.setProperty('--header-h',(a.headerH||0)+'px');
   root.setProperty('--tabbar-h',(a.tabbarH||0)+'px');
-  root.setProperty('--chat-bottom',((a.inputBarH||0)>0?(a.inputBarH||0):0)+'px');
-  root.setProperty('--input-shift',((a.inputBarH||0)<0?-(a.inputBarH||0):0)+'px');
+  /* 输入栏上下调节：仅在开键盘时对输入栏位移（上调=负位移往键盘上方移，下调=正位移贴键盘）；
+     不改变聊天视图底部留白，保留 safe-bottom 防止输入栏掉到底栏下方 */
+  root.setProperty('--input-shift',(-(a.inputBarH||0))+'px');
   if(a.userBubble)root.setProperty('--bubble-user-bg',a.userBubble);
   else root.removeProperty('--bubble-user-bg');
   if(a.aiBubble)root.setProperty('--bubble-ai-bg',a.aiBubble);
@@ -7592,6 +7595,9 @@ function wireEvents(){
   });
   /* 回车键：仅发送文字，不生成回复 */
   $('#chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTextOnly()}});
+  /* 开/收键盘时切换 .keyboard-open，让输入栏上下位移只在唤起输入法时生效 */
+  $('#chatInput').addEventListener('focus',e=>{const v=document.getElementById('chatView');if(v)v.classList.add('keyboard-open')});
+  $('#chatInput').addEventListener('blur',e=>{const v=document.getElementById('chatView');if(v)v.classList.remove('keyboard-open')});
   /* 通话输入框：回车仅发送消息、Esc 挂断（要 ta 回复请点右侧回复键） */
   $('#callText').addEventListener('keydown',e=>{
     if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendCallTextOnly()}
