@@ -180,7 +180,7 @@ body{
 /* ========== 消息扩展类型 ========== */
 /* 线下模式旁白：场景/动作/神态放在气泡外，被透明窗口罩住的灰色小字 */
 .msg-row.narr{align-self:center;max-width:84%}
-.msg-narr{font-size:12px;color:var(--ink-soft);line-height:1.75;text-align:center;padding:6px 16px;border-radius:18px;background:rgba(128,128,128,.08);border:1px solid rgba(128,128,128,.14);max-width:100%;word-break:break-word}
+.msg-narr{font-size:12px;color:var(--narr-color,var(--ink-soft));line-height:1.75;text-align:center;padding:6px 16px;border-radius:18px;background:var(--narr-bg,rgba(128,128,128,.08));border:1px solid var(--narr-border,rgba(128,128,128,.14));max-width:100%;word-break:break-word}
 /* 消息时间戳：对方气泡外部右下角、我方气泡外部左下角（追加为 .msg-row 最后一个子元素即可） */
 .msg-time{font-size:10.5px;color:var(--ink-soft);opacity:.72;align-self:flex-end;padding:0 2px 2px;flex-shrink:0;line-height:1;user-select:none}
 .msg-row.narr .msg-time{display:none}
@@ -2326,6 +2326,18 @@ button,.seg-opt,[role="button"]{touch-action:manipulation;-webkit-tap-highlight-
       <div class="set-row" style="padding:12px 14px"><div class="swatch-row" id="userBubbleSwatches"></div></div>
       <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></span><div><div>对方发送的气泡</div></div></div></div>
       <div class="set-row" style="padding:12px 14px"><div class="swatch-row" id="aiBubbleSwatches"></div></div>
+      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 11h16M4 16h9"/></svg></span><div><div>我方气泡文字颜色</div></div></div></div>
+      <div class="set-row" style="padding:12px 14px"><div class="swatch-row" id="userInkSwatches"></div></div>
+      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6h16M4 11h16M4 16h9"/></svg></span><div><div>对方气泡文字颜色</div></div></div></div>
+      <div class="set-row" style="padding:12px 14px"><div class="swatch-row" id="aiInkSwatches"></div></div>
+    </div>
+
+    <div class="sec-title">旁白文字（旁白线下的灰色小字）</div>
+    <div class="set-card">
+      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="4"/><path d="M7 8h10M7 12h10M7 16h6"/></svg></span><div><div>旁白外框颜色</div><div class="sub">旁白气泡的底色与外框</div></div></div></div>
+      <div class="set-row" style="padding:12px 14px"><div class="swatch-row" id="narrBgSwatches"></div></div>
+      <div class="set-row"><div class="label"><span class="i"><svg class="ic" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="3"/></svg></span><div><div>旁白文字颜色</div></div></div></div>
+      <div class="set-row" style="padding:12px 14px"><div class="swatch-row" id="narrColorSwatches"></div></div>
     </div>
 
     <div class="sec-title">聊天界面背景</div>
@@ -2714,7 +2726,7 @@ function defaultData(){
   regexRules:[],
     novelPresets:[],
     userProfiles:[],
-    appearance:{theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:0,tabbarH:0,inputBarH:0,appIcons:{}},
+    appearance:{theme:'system',userBubble:null,aiBubble:null,userBubbleInk:null,aiBubbleInk:null,chatBg:null,deskBg:null,headerH:0,tabbarH:0,inputBarH:0,narrBg:null,narrColor:null,appIcons:{}},
     moments:{cover:null,myName:null,myAvatar:null,posts:[]},
     letters:{enabled:true,nextAt:{},list:[]},
     market:{balance:1000,cart:[],orders:[]},
@@ -2775,7 +2787,7 @@ function migrate(d){
   d.stickerGroups=d.stickerGroups||[];
   d.novelPresets=d.novelPresets||[];
   d.userProfiles=d.userProfiles||[];
-  d.appearance={theme:'system',userBubble:null,aiBubble:null,chatBg:null,deskBg:null,headerH:52,tabbarH:56,inputBarH:0,appIcons:{},...(d.appearance||{})};
+  d.appearance={theme:'system',userBubble:null,aiBubble:null,userBubbleInk:null,aiBubbleInk:null,chatBg:null,deskBg:null,headerH:52,tabbarH:56,inputBarH:0,narrBg:null,narrColor:null,appIcons:{},...(d.appearance||{})};
   d.moments={cover:null,myName:null,myAvatar:null,posts:[],...(d.moments||{})};
   d.moments.posts=d.moments.posts||[];
   d.letters={enabled:true,nextAt:{},list:[],freq:'mid',...(d.letters||{})};
@@ -4300,7 +4312,15 @@ async function requestReplyFor(agent){
         checkAutoSummary(agent.id);
         return;
       }
-      /* 识图 API 未配置/失败：不再回头叠主 API 去识图，直接按文字历史走主 API */
+      /* 识图失败：仅提示“确实配了识图接口但失败了”的玩家，且每趟会话只提示一次，避免反复打扰。
+         完全没装识图 API 的玩家不弹任何提示，直接照常走文字回复 */
+      if((data.settings.visionUrl||'').trim()&&lastVisionError){
+        console.warn('[识图] 失败：',lastVisionError);
+        if(!window._visionFailedWarned){
+          window._visionFailedWarned=true;
+          snack('识图未识别成功：'+lastVisionError);
+        }
+      }
     }
     const history=buildHistoryText(agent);
     const reply=await sendChat(getAgentConfig(agent),pushCmdHiddenSystem([{role:'system',content:buildSystemPrompt(agent)},...history]));
@@ -4562,6 +4582,8 @@ function rhythmDelay(m){
   return 420+Math.min(520,len*16)+Math.random()*220;
 }
 /* 回车键：仅把文字发出去，不生成 AI 回复（发送键才触发回复） */
+/* 输入框“延迟收起”用的全局定时器：声明在顶层，供 openChatInput 与 focus/blur 监听共享 */
+let _chatKbTimer=null;
 /* 点击输入栏任意位置（按钮/弹层外）即聚焦并打开发送框。
    用 pointerdown（同时覆盖鼠标与触屏），并对文本域本身也强制 focus，
    解决移动端“只点左侧能进、甚至要点好几下”的问题：点输入框任意位置都应稳定聚焦。 */
@@ -4569,10 +4591,15 @@ function openChatInput(e){
   const t=e&&e.target;
   if(!t)return;
   /* 按钮 / 弹层 / 链接等交互控件要保留它们自己的点击，不抢焦点 */
-  if(t.closest('button,a,select,.popover,.seg-opt,.send-btn'))return;
+  if(t.closest('button,a,select,.popover,.seg-opt,.send-btn,.color-input'))return;
   const inp=$('#chatInput');
-  if(!inp)return;
-  if(!inp.disabled&&document.activeElement!==inp)inp.focus({preventScroll:true});
+  if(!inp||inp.disabled)return;
+  clearTimeout(_chatKbTimer);                     /* 取消即将发生的“收起”，避免抖一下又折回去 */
+  const v=document.getElementById('chatView');if(v)v.classList.add('keyboard-open');
+  if(document.activeElement===inp)return;         /* 已聚焦就不再重复抢 */
+  inp.focus({preventScroll:true});
+  /* 个别 webview（套壳/文件直开）首次 focus 可能没生效：下一帧若仍是失焦再补一次，保证点得出来 */
+  requestAnimationFrame(function(){if(document.activeElement!==inp)inp.focus({preventScroll:true})});
 }
 function sendTextOnly(){
   const input=$('#chatInput');
@@ -5062,17 +5089,41 @@ function compressDataUrl(dataUrl,max=1200,q=.85){
 }
 /* 识别图片用的接口配置：优先用「独立识图接口」，留空则回退到主 API 预设
    （包括自定义请求头与 CORS 代理）。这样只配了主 API 的用户也能让模型直接“看图”。 */
-function resolveVision(opt){
+let _visionModelCache=null,_visionModelKeys='';
+/* 模型留空时，从识图接口自动挑一个可用视觉模型，避免误用主 API 模型名导致“模型不存在” */
+async function pickVisionModel(url,key,corsProxy){
+  const k=url+'|'+key;
+  if(_visionModelKeys===k&&_visionModelCache)return _visionModelCache;
+  try{
+    const ms=await fetchModelList(url,key,{corsProxy});
+    const id=m=>m&&(m.id||m.name||'')||'';
+    const scored=(ms||[]).map(m=>{
+      const s=id(m).toLowerCase();let sc=0;
+      if(/vision|-vl\b|vlm|gpt-4o|gemini|claude|llava|qwen.*vl|glm-4v|minicpm/i.test(s))sc+=2;
+      if(/embed|tts|whisper|rerank|dall|moderation|audio|image$/i.test(s))sc-=3;
+      return {m,sc};
+    }).filter(x=>x.sc>-1);
+    scored.sort((a,b)=>b.sc-a.sc);
+    const pick=(scored.length?scored[0]:ms[0]);
+    if(pick){_visionModelCache=id(pick);_visionModelKeys=k;return _visionModelCache}
+  }catch(e){}
+  return '';
+}
+async function resolveVision(opt){
   const p=activePreset()||{};
   const vUrl=(data.settings.visionUrl||'').trim();
   const vKey=(data.settings.visionKey||'').trim();
+  const cors=(opt&&opt.corsProxy)||p.corsProxy||'';
   if(vUrl&&vKey){
-    return {url:vUrl,key:vKey,model:data.settings.visionModel||p.model,headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
+    const cfgModel=(data.settings.visionModel||'').trim();
+    /* 未指定识图模型：自动挑一个视觉模型；挑不到再回退主 API 模型（避免误用主模型名导致模型不存在） */
+    const model=cfgModel||await pickVisionModel(vUrl,vKey,cors)||p.model;
+    return {url:vUrl,key:vKey,model:model,headers:null,corsProxy:cors};
   }
   /* 独立识图未配置 → 用主 API 预设（兼容自定义鉴权头） */
   const headers={};
   if(p.headers)Object.assign(headers,parseHeadersStr(p.headers));
-  return {url:p.url||'',key:p.key||'',model:p.model,headers:Object.keys(headers).length?headers:null,corsProxy:(opt&&opt.corsProxy)||p.corsProxy||''};
+  return {url:p.url||'',key:p.key||'',model:p.model,headers:Object.keys(headers).length?headers:null,corsProxy:cors};
 }
 function buildVisionHeaders(v){
   const h=v.headers?Object.assign({},v.headers):{};
@@ -5083,7 +5134,7 @@ function buildVisionHeaders(v){
 /* 识图 API 通用封装：返回图片中文描述；未配置且主 API 也不可用时返回空字符串 */
 async function visionDescribeImage(dataUrl){
   if(!dataUrl)return '';
-  const v=resolveVision(null);
+  const v=await resolveVision(null);
   if(!v.url)return '';
   /* 送识图前先压缩，避免超大图片被接口拒收或触发超时 */
   const src=await compressDataUrl(dataUrl,1200,.85)||dataUrl;
@@ -5109,13 +5160,14 @@ async function visionDescribeImage(dataUrl){
    未配置识图且主 API 也不可用、或调用失败时返回 null，由调用方回退到纯文字主 API 流程。 */
 async function visionChatReply(opt,imageDataUrls,prompt){
   if(!opt)return null;
-  const v=resolveVision(opt);
+  const v=await resolveVision(opt);
   if(!v.url)return null;
   const imgs=await Promise.all((imageDataUrls||[]).map(async d=>{
     const c=await compressDataUrl(d,1000,.82)||d;   /* 压缩后再送，避免超大图被拒 */
     return {type:'image_url',image_url:{url:c}};
   }));
   if(!imgs.length)return null;
+  lastVisionError='';   /* 每次调用前清空，失败时记录原因，便于界面上提示排查 */
   /* 地址可能已含 /v1 或没带，逐一尝试直到拿到非空回复 */
   for(const base of getCandidates(v.url)){
     try{
@@ -5131,11 +5183,12 @@ async function visionChatReply(opt,imageDataUrls,prompt){
       const msg=d&&d.choices&&d.choices[0]&&(d.choices[0].message||d.choices[0].delta);
       const content=msg&&(msg.content!=null?msg.content:(msg.delta?msg.delta.content:''))||'';
       const t=String(content).trim();
-      if(t)return t;
-    }catch(e){}
+      if(t){lastVisionError='';return t}
+    }catch(e){lastVisionError=(e&&e.message?String(e.message).slice(0,140):'识图请求失败')}
   }
   return null;
 }
+let lastVisionError='';
 function openGiftModal(){closeChatMore();$('#gmName').value='';$('#gmDesc').value='';$('#gmNote').value='';$('#giftModal').classList.add('open')}
 
 function sendVoice(){
@@ -6773,6 +6826,9 @@ function renderAfUsers(){
 
 /* ===== 外观 ===== */
 const BUBBLE_COLORS=['#cde9dc','#b8e0d0','#ffd9b8','#ffe9a8','#d8c9f2','#f2c9c9','#b8d8f2','#c9a2a0'];
+const NARR_BG_COLORS=['rgba(128,128,128,.08)','rgba(120,140,180,.14)','rgba(210,180,220,.16)','rgba(250,240,200,.30)','rgba(160,210,200,.16)','rgba(0,0,0,.10)','rgba(255,255,255,.30)'];
+const NARR_TEXT_COLORS=['#8a8a8a','#6b7280','#7a5c8a','#8a7a4a','#4a7a72','#b0a8a0','#5a5a66'];
+const BUBBLE_INK_COLORS=['#223026','#33363d','#e8edf6','#222222','#2a7a5a','#3a5a8a','#8a3a3a','#6a4a8a'];
 const BG_COLORS=['#f3faf8','#f7f5fa','#f5f8fb','#fbf4f5','#f6faf3','#f4f8fa','#ffffff','#f2ede8','#161a25','#1c212e'];
 function applyTheme(){
   const t=data.appearance.theme||'system';
@@ -6795,6 +6851,15 @@ function applyAppearance(){
   else root.removeProperty('--bubble-user-bg');
   if(a.aiBubble)root.setProperty('--bubble-ai-bg',a.aiBubble);
   else root.removeProperty('--bubble-ai-bg');
+  /* 我方/对方气泡内文字颜色 */
+  if(a.userBubbleInk)root.setProperty('--bubble-user-ink',a.userBubbleInk);
+  else root.removeProperty('--bubble-user-ink');
+  if(a.aiBubbleInk)root.setProperty('--bubble-ai-ink',a.aiBubbleInk);
+  else root.removeProperty('--bubble-ai-ink');
+  if(a.narrBg){root.setProperty('--narr-bg',a.narrBg);root.setProperty('--narr-border','color-mix(in srgb,'+a.narrBg+' 58%, transparent)')}
+  else{root.removeProperty('--narr-bg');root.removeProperty('--narr-border')}
+  if(a.narrColor)root.setProperty('--narr-color',a.narrColor);
+  else root.removeProperty('--narr-color');
   const cv=$('#chatView');if(cv){
     if(a.chatBg){if(a.chatBg.type==='image'){cv.style.backgroundImage='url('+a.chatBg.value+')';cv.style.backgroundSize='cover';cv.style.backgroundPosition='center';cv.style.backgroundColor='';}else{cv.style.backgroundImage='';cv.style.backgroundColor=a.chatBg.value;}}
     else{cv.style.backgroundImage='';cv.style.backgroundColor='';}
@@ -6816,8 +6881,12 @@ function renderAppearance(){
   const st=data.settings;
   $('#showTimeToggle').classList.toggle('on',!!st.showTime);
   $$('#sendModeSeg .seg-opt').forEach(s=>s.classList.toggle('on',s.dataset.mode===(st.sendMode||'batch')));
-  renderSwatches('userBubbleSwatches',BUBBLE_COLORS,a.userBubble);
-  renderSwatches('aiBubbleSwatches',BUBBLE_COLORS,a.aiBubble);
+  renderSwatches('userBubbleSwatches',BUBBLE_COLORS,a.userBubble||'#cde9dc');
+  renderSwatches('aiBubbleSwatches',BUBBLE_COLORS,a.aiBubble||'#ffe9a8');
+  renderSwatches('userInkSwatches',BUBBLE_INK_COLORS,a.userBubbleInk||BUBBLE_INK_COLORS[0]);
+  renderSwatches('aiInkSwatches',BUBBLE_INK_COLORS,a.aiBubbleInk||BUBBLE_INK_COLORS[1]);
+  renderSwatches('narrBgSwatches',NARR_BG_COLORS,a.narrBg||NARR_BG_COLORS[0]);
+  renderSwatches('narrColorSwatches',NARR_TEXT_COLORS,a.narrColor||NARR_TEXT_COLORS[0]);
   renderSwatches('chatBgSwatches',BG_COLORS,a.chatBg?.type==='color'?a.chatBg.value:null);
   renderSwatches('deskBgSwatches',BG_COLORS,a.deskBg?.type==='color'?a.deskBg.value:null);
   renderBgPreview('chatBgPreview',a.chatBg);
@@ -6897,6 +6966,10 @@ function resetAppIcons(){
 const SWATCH_ACTIONS={
   userBubbleSwatches:{set:v=>{data.appearance.userBubble=v}},
   aiBubbleSwatches:{set:v=>{data.appearance.aiBubble=v}},
+  userInkSwatches:{set:v=>{data.appearance.userBubbleInk=v}},
+  aiInkSwatches:{set:v=>{data.appearance.aiBubbleInk=v}},
+  narrBgSwatches:{set:v=>{data.appearance.narrBg=v}},
+  narrColorSwatches:{set:v=>{data.appearance.narrColor=v}},
   chatBgSwatches:{set:v=>{data.appearance.chatBg={type:'color',value:v};renderBgPreview('chatBgPreview',data.appearance.chatBg)}},
   deskBgSwatches:{set:v=>{data.appearance.deskBg={type:'color',value:v};renderBgPreview('deskBgPreview',data.appearance.deskBg)}}
 };
@@ -7595,9 +7668,18 @@ function wireEvents(){
   });
   /* 回车键：仅发送文字，不生成回复 */
   $('#chatInput').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendTextOnly()}});
-  /* 开/收键盘时切换 .keyboard-open，让输入栏上下位移只在唤起输入法时生效 */
-  $('#chatInput').addEventListener('focus',e=>{const v=document.getElementById('chatView');if(v)v.classList.add('keyboard-open')});
-  $('#chatInput').addEventListener('blur',e=>{const v=document.getElementById('chatView');if(v)v.classList.remove('keyboard-open')});
+  /* 开/收键盘时切换 .keyboard-open，让输入栏上下位移只在唤起输入法时生效。
+     blur 采用延迟收起：消除“弹出来→又折回去”的抖动（页面重排/失焦瞬间不会立刻收起），
+     若期间重新聚焦则直接取消收起，保证网页版与文件直开都能稳定点出输入框。 */
+  $('#chatInput').addEventListener('focus',()=>{clearTimeout(_chatKbTimer);const v=document.getElementById('chatView');if(v)v.classList.add('keyboard-open')});
+  $('#chatInput').addEventListener('blur',()=>{
+    clearTimeout(_chatKbTimer);
+    _chatKbTimer=setTimeout(()=>{
+      const inp=$('#chatInput');
+      if(inp&&document.activeElement===inp)return;   /* 又在聚焦中，不收起 */
+      const v=document.getElementById('chatView');if(v)v.classList.remove('keyboard-open');
+    },150);
+  });
   /* 通话输入框：回车仅发送消息、Esc 挂断（要 ta 回复请点右侧回复键） */
   $('#callText').addEventListener('keydown',e=>{
     if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendCallTextOnly()}
